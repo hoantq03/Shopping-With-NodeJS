@@ -7,7 +7,6 @@ const get404 = require("./controllers/404.js");
 const app = express();
 
 app.set("view engine", "ejs");
-app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -19,4 +18,6 @@ app.use(shopRoutes);
 // Page Not Found Page
 app.use(get404.pageNotFound);
 
-app.listen(3000);
+app.listen(3000, (err) => {
+  console.log("node server start on port 3000");
+});

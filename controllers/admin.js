@@ -32,8 +32,8 @@ exports.postAddProduct = (req, res, next) => {
 
 //
 // get products view for admin to delete or edit
-exports.adminProducts = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+exports.getAdminProducts = (req, res, next) => {
+  Product.fetchAll((products) => {
     res.render("admin/products", {
       prods: products,
       pageTitle: "My Shop",
