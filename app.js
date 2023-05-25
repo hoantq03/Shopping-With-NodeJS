@@ -16,9 +16,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // includes 2 main routes :
-// '/'
-app.use("/admin", adminRoutes);
 // '/admin'
+app.use("/admin", adminRoutes);
+// '/'
 app.use(shopRoutes);
 // Page Not Found Page
 app.use(get404.pageNotFound);
