@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const adminRoutes = require("./routes/admin.js");
 const shopRoutes = require("./routes/shop.js");
 const get404 = require("./controllers/404.js");
+
+//use expressJS
 const app = express();
 
 app.set("view engine", "ejs");

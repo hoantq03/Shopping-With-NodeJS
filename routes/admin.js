@@ -1,4 +1,3 @@
-const path = require("path");
 const express = require("express");
 const adminController = require("../controllers/admin.js");
 const router = express.Router();
@@ -14,4 +13,5 @@ router.get("/products", adminController.getAdminProducts);
 //
 router.get("/edit-product/:productId", adminController.getEditProduct);
 
+router.get("/edit-product", adminController.postEditProduct);
 module.exports = router;

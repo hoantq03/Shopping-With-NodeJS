@@ -4,25 +4,34 @@
     <body>
         <%- include('../includes/navigation.ejs') %>
             <main>
-                <form class="product-form" action="/admin/add-product" method="POST">
+                <form class="product-form" action="/admin/<% if(editing) {%>edit-product<%}else{%>add-product<%}%>"
+                    method="POST">
                     <div class="form-control">
                         <label for="title">Title</label>
-                        <input type="text" name="title" id="title">
+                        <input type="text" name="title" id="title"
+                            value="<%if(editing){ %> <%=product.title%><% } else {}%>">
                     </div>
                     <div class="form-control">
                         <label for="imageUrl">Image URL</label>
-                        <input type="text" name="imageUrl" id="imageUrl">
+                        <input type="text" name="imageUrl" id="imageUrl"
+                            value="<%if(editing){ %> <%=product.imageUrl%><% } else {}%>">
                     </div>
                     <div class="form-control">
                         <label for="price">Price</label>
-                        <input type="number" name="price" id="price">
+                        <input type="text" step="0.01" name="price" id="price"
+                            value="<%if(editing){ %> <%=product.price%><% } else {}%>">
                     </div>
                     <div class="form-control">
                         <label for="description">Description</label>
-                        <input type="text" name="description" id="Description">
+                        <input type="text" name="description" id="Description"
+                            value="<%if(editing){ %> <%=product.description%><% } else {}%>">
                     </div>
-
-                    <button class="btn" type="submit">Add Product</button>
+                    <% if (editing) {%>
+                        <input type="hidden" value="<%= product.id %>" name="productId">
+                        <% } %>
+                            <button class="btn" type="submit">
+                                <% if ( editing ) { %> Update Product <% } else { %> Add Product <% } %>
+                            </button>
                 </form>
             </main>
     </body>
