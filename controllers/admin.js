@@ -1,7 +1,8 @@
 const Product = require("../Models/product");
 
-// get add product views
+// get add product views for path : /admin/add-product
 exports.getAddProduct = (req, res) => {
+  //render EJS file at path ('admin/edit-product') and passing some data
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",

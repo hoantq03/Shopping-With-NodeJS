@@ -10,16 +10,20 @@ const app = express();
 
 app.set("view engine", "ejs");
 
+// body parser for parse request.body to json()
 app.use(bodyParser.urlencoded({ extended: false }));
+// public this path for access anywhere
 app.use(express.static(path.join(__dirname, "public")));
 
-// includes 2 main routes : '/' and '/admin'
+// includes 2 main routes :
+// '/'
 app.use("/admin", adminRoutes);
+// '/admin'
 app.use(shopRoutes);
-
 // Page Not Found Page
 app.use(get404.pageNotFound);
 
+// app listen at port 3000
 app.listen(3000, (err) => {
   console.log("node server start on port 3000");
 });
