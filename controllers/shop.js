@@ -1,6 +1,5 @@
 const Product = require("../Models/product");
 const Cart = require("../Models/cart");
-
 // get index means get all data of products and passing this to the products(in this project, it can be call 'index.ejs') view
 exports.getIndex = (req, res) => {
   // fetch all data
@@ -42,9 +41,20 @@ exports.getProduct = (req, res) => {
 
 // cart all products in the cart
 exports.getCart = (req, res) => {
-  res.render("shop/cart", {
-    pageTitle: "Your Cart",
-    path: "/cart",
+  let listCart = [];
+  Product.fetchAll((products) => {
+    Cart.getAllProductId((productCartId) => {
+      products.forEach((product) => {
+        if (productCartId.includes(product.id)) {
+          listCart.push(product);
+        }
+      });
+      res.render("shop/cart", {
+        pageTitle: "Your Cart",
+        path: "/cart",
+        prods: listCart,
+      });
+    });
   });
 };
 
@@ -58,6 +68,17 @@ exports.postCart = (req, res) => {
     Cart.addProduct(prodId, product);
   });
   res.redirect("/");
+};
+
+//delete product in cart
+exports.postDeleteCart = (req, res) => {
+  const prodId = req.body.productId;
+  console.log(Product);
+  Product.findById(prodId, (product) => {
+    console.log(product);
+    Cart.deleteProduct(product);
+  });
+  res.redirect("/cart");
 };
 
 //checkout

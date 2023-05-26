@@ -1,5 +1,5 @@
 const Product = require("../Models/product");
-
+const Cart = require("../Models/cart");
 // get add product views for path : /admin/add-product
 exports.getAddProduct = (req, res) => {
   //render EJS file at path ('admin/edit-product') and passing some data
@@ -82,4 +82,19 @@ exports.postEditProduct = (req, res) => {
   updatedProduct.save();
   //redirect to home page
   res.redirect("/admin/products");
+};
+
+// POST delete product
+exports.postDeleteProduct = (req, res) => {
+  const productId = req.body.productId;
+  // find product
+  console.log("start delete from cart");
+  Product.findById(productId, (product) => {
+    // deleted this product
+    Cart.deleteProduct(product);
+  });
+  Product.deleteProductById(productId);
+  console.log("end delete from cart");
+
+  res.redirect("/products");
 };

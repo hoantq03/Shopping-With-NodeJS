@@ -14,6 +14,8 @@ router.get("/", shopControllers.getIndex);
 router.get("/products", shopControllers.getProducts);
 
 // get 1 product view with dynamic path (productID)
+// (the purpose of /:productId is get productId from params )
+// ProductId passing from 'a' HTML tag
 router.get("/products/:productId", shopControllers.getProduct);
 
 // get cart view, show all products was being added to cart before
@@ -21,9 +23,13 @@ router.get("/cart", shopControllers.getCart);
 
 // '/cart' ==> POST data for save cart our cart information
 router.post("/cart", shopControllers.postCart);
-
+// POST
+router.post("/cart-delete-product", shopControllers.postDeleteCart);
+// get checkout View
 router.get("/checkout", shopControllers.getCheckout);
 
+// get orders view
 router.get("/orders", shopControllers.getOrders);
 
+// export router of /shopController
 module.exports = router;
