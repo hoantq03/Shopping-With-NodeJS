@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const adminRoutes = require("./routes/admin.js");
 const shopRoutes = require("./routes/shop.js");
 const get404 = require("./controllers/404.js");
+const db = require("./util/database");
 
 //use expressJS
 const app = express();
@@ -14,6 +15,9 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
 // public this path for access anywhere
 app.use(express.static(path.join(__dirname, "public")));
+
+//using database
+db.connect((err) => {});
 
 // includes 2 main routes :
 // '/admin'
