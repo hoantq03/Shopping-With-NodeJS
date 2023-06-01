@@ -64,7 +64,6 @@ module.exports = class Cart {
       // create updated variable for storage new data
       let updatedProducts;
       // if product is being existing in file
-      console.log(existingProductIndex);
       if (existingProductIndex >= 0) {
         updatedProducts = cart;
         // subtract price * qty

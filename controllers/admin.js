@@ -1,5 +1,6 @@
-const Product = require("../Models/product");
+const Product = require("../models/product");
 const Cart = require("../Models/cart");
+const db = require("../util/database");
 // get add product views for path : /admin/add-product
 exports.getAddProduct = (req, res) => {
   //render EJS file at path ('admin/edit-product') and passing some data
@@ -13,29 +14,35 @@ exports.getAddProduct = (req, res) => {
 //post data for save product
 exports.postAddProduct = (req, res) => {
   // create new product and passing data from form
-  const product = new Product(
-    null,
-    req.body.title,
-    req.body.imageUrl,
-    req.body.description,
-    req.body.price
-  );
+  const title = req.body.title;
+  const imageUrl = req.body.imageUrl;
+  const description = req.body.description;
+  const price = req.body.price;
   // save product to file
-  product.save();
-  // redirect to home page
-  res.redirect("/");
+  Product.create({
+    title: title,
+    price: price,
+    imageUrl: imageUrl,
+    description: description,
+  })
+    .then(() => {
+      res.redirect("/admin/products");
+    })
+    .catch((error) => console.log(error));
 };
 
 // get products view for admin to delete or edit
 exports.getAdminProducts = (req, res) => {
   // fetch all data and then render all data
-  Product.fetchAll((products) => {
-    res.render("admin/products", {
-      prods: products,
-      pageTitle: "My Shop",
-      path: "/admin/products",
-    });
-  });
+  Product.findAll()
+    .then((allProducts) => {
+      res.render("admin/products", {
+        prods: allProducts,
+        pageTitle: "My Shop",
+        path: "/admin/products",
+      });
+    })
+    .catch((error) => console.log(error));
 };
 
 // get edit product view with passing product id to url path dynamically
@@ -51,50 +58,51 @@ exports.getEditProduct = (req, res) => {
   // id data also come from 'a' tag in EJS
   const prodId = req.params.productId;
   // find this product in our file
-  Product.findById(prodId, (product) => {
-    // if not exist in our file, redirect to home page
-    if (!product) {
-      return res.redirect("/");
-    }
-    // if is existed in out file, render edit-product view with editing : true because
-    // we have 'edit-product' EJS file for both updating and creating new product
-    // so we must be check 'editing mode' for render exactly view
-    res.render("admin/edit-product", {
-      pageTitle: "Edit Product",
-      path: "/admin/add-product",
-      editing: true,
-      product: product,
-    });
-  });
+  Product.findByPk(prodId)
+    .then((product) => {
+      // if not exist in our file, redirect to home page
+      if (!product) {
+        return res.redirect("/");
+      }
+      // if is existed in out file, render edit-product view with editing : true because
+      // we have 'edit-product' EJS file for both updating and creating new product
+      // so we must be check 'editing mode' for render exactly view
+      res.render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/add-product",
+        editing: true,
+        product: product,
+      });
+    })
+    .catch();
 };
 
 // post data from form 'edit-product'
 exports.postEditProduct = (req, res) => {
   // create new Product with all data from form
-  const updatedProduct = new Product(
-    req.body.productId,
-    req.body.title,
-    req.body.imageUrl,
-    req.body.description,
-    req.body.price
-  );
-  // save this product to file
-  updatedProduct.save();
-  //redirect to home page
-  res.redirect("/admin/products");
+  Product.findByPk(req.body.productId)
+    .then((product) => {
+      product.title = req.body.title;
+      product.imageUrl = req.body.imageUrl;
+      product.description = req.body.description;
+      product.price = req.body.price;
+      return product.save();
+    })
+    .then(() => res.redirect("/"))
+    .catch((error) => console.log(error));
 };
 
 // POST delete product
 exports.postDeleteProduct = (req, res) => {
   const productId = req.body.productId;
   // find product
-  console.log("start delete from cart");
-  Product.findById(productId, (product) => {
-    // deleted this product
-    Cart.deleteProduct(product);
-  });
-  Product.deleteProductById(productId);
-  console.log("end delete from cart");
 
-  res.redirect("/products");
+  Product.findByPk(productId)
+    .then((product) => {
+      return product.destroy();
+    })
+    .then(() => {
+      res.redirect("/admin/products");
+    })
+    .catch((error) => console.log(error));
 };
