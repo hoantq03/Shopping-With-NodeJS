@@ -38,20 +38,25 @@ app.use("/admin", adminRoutes);
 app.use(get404.pageNotFound);
 //
 
-//
+// create assosiation
+
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
 User.hasOne(Cart);
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+
 // force to drop all table and recreate
 // { force: true }
 sequelize
-  .sync({ force: true })
+  //sync all data to ORM
+  .sync()
+  //then we find the user login
   .then((result) => {
     return User.findByPk(10);
   })
+  // check user is existed ?
   .then((user) => {
     if (!user) {
       return User.create({
@@ -62,6 +67,9 @@ sequelize
     return user;
   })
   .then((user) => {
+    return user.createCart();
+  })
+  .then((cart) => {
     // app listen at port 3000
     app.listen(3000, (err) => {
       console.log("node server start on port 3000");

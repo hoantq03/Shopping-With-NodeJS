@@ -47,36 +47,50 @@ exports.getProduct = (req, res) => {
 
 // cart all products in the cart
 exports.getCart = (req, res) => {
-  let listCart = [];
-  Product.fetchAllProducts()
-    .then((allProducts) => {
-      const [rowsProducts, fieldData] = allProducts;
-      Cart.getAllProductId((productCartId) => {
-        rowsProducts.forEach((rowProduct) => {
-          if (productCartId.includes(rowProduct.id)) {
-            listCart.push(rowProduct);
-          }
-        });
-        res.render("shop/cart", {
-          pageTitle: "Your Cart",
-          path: "/cart",
-          prods: listCart,
-        });
+  req.user
+    .getCart()
+    .then((cart) => {
+      return cart.getProducts();
+    })
+    .then((products) => {
+      console.log(products);
+      res.render("shop/cart", {
+        pageTitle: "Your Cart",
+        path: "/cart",
+        prods: products,
       });
     })
     .catch((error) => console.log(error));
+  console.log();
 };
 
 // post data from save to file
 exports.postCart = (req, res) => {
-  // add id to cart and the id come from form EJS (hidden type)
-  const prodId = req.body.productId;
-  //find this product and then call the 'Cart Model' to save this data to the file
-  Product.findById(prodId)
-    .then((resultProducts) => {
-      const [rows, fieldData] = resultProducts;
-      // then send all data from this product to the cart.add() model
-      Cart.addProduct(prodId, rows[0]);
+  const productId = req.body.productId;
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts({ where: { id: productId } });
+    })
+    .then((products) => {
+      let product;
+      if (products.length > 0) {
+        product = products[0];
+      }
+
+      if (product) {
+        //...
+      }
+      return Product.findByPk(productId);
+    })
+    .then((product) => {
+      let newQuantity = 1;
+      return fetchedCart.addProduct(product, {
+        through: { quantity: newQuantity },
+      });
+    })
+    .then(() => {
       res.redirect("/");
     })
     .catch((error) => console.log(error));
