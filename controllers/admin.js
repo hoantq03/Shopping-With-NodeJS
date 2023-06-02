@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const Cart = require("../Models/cart");
+const Cart = require("../models/cart");
 const db = require("../util/database");
 // get add product views for path : /admin/add-product
 exports.getAddProduct = (req, res) => {
@@ -18,13 +18,14 @@ exports.postAddProduct = (req, res) => {
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
-  // save product to file
-  Product.create({
-    title: title,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-  })
+  const userId = req.user.id;
+  req.user
+    .createProduct({
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+    })
     .then(() => {
       res.redirect("/admin/products");
     })
@@ -34,7 +35,9 @@ exports.postAddProduct = (req, res) => {
 // get products view for admin to delete or edit
 exports.getAdminProducts = (req, res) => {
   // fetch all data and then render all data
-  Product.findAll()
+  // Product.findAll()
+  req.user
+    .getProducts()
     .then((allProducts) => {
       res.render("admin/products", {
         prods: allProducts,
@@ -58,8 +61,11 @@ exports.getEditProduct = (req, res) => {
   // id data also come from 'a' tag in EJS
   const prodId = req.params.productId;
   // find this product in our file
-  Product.findByPk(prodId)
-    .then((product) => {
+  // Product.findByPk(prodId)
+  req.user
+    .getProducts({ where: { id: prodId } })
+    .then((products) => {
+      const product = products[0];
       // if not exist in our file, redirect to home page
       if (!product) {
         return res.redirect("/");

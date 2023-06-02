@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const Cart = require("../Models/cart");
+const Cart = require("../models/cart");
 // get index means get all data of products and passing this to the products(in this project, it can be call 'index.ejs') view
 exports.getIndex = (req, res) => {
   // fetch all data

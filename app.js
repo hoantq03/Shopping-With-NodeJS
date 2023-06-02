@@ -7,6 +7,8 @@ const get404 = require("./controllers/404.js");
 const sequelize = require("./util/database");
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 //use expressJS
 const app = express();
 
@@ -17,14 +19,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // public this path for access anywhere
 app.use(express.static(path.join(__dirname, "public")));
 
-// includes 2 main routes :
-// '/admin'
-app.use("/admin", adminRoutes);
-// '/'
-app.use(shopRoutes);
-// Page Not Found Page
-app.use(get404.pageNotFound);
-//
 app.use((req, res, next) => {
   User.findByPk(10)
     .then((user) => {
@@ -35,15 +29,28 @@ app.use((req, res, next) => {
       console.log(error);
     });
 });
+// includes 2 main routes :
+// '/'
+app.use(shopRoutes);
+// '/admin'
+app.use("/admin", adminRoutes);
+// Page Not Found Page
+app.use(get404.pageNotFound);
+//
+
 //
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 // force to drop all table and recreate
 // { force: true }
 sequelize
-  .sync()
+  .sync({ force: true })
   .then((result) => {
-    return User.findByPk();
+    return User.findByPk(10);
   })
   .then((user) => {
     if (!user) {
