@@ -39,8 +39,9 @@ app.use(get404.pageNotFound);
 //
 
 // create assosiation
-
+//Product is created by one User
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+//user can create many product
 User.hasMany(Product);
 User.hasOne(Cart);
 Cart.belongsTo(User);
@@ -49,30 +50,20 @@ Product.belongsToMany(Cart, { through: CartItem });
 
 // force to drop all table and recreate
 // { force: true }
-sequelize
-  //sync all data to ORM
-  .sync()
-  //then we find the user login
-  .then((result) => {
-    return User.findByPk(10);
-  })
-  // check user is existed ?
-  .then((user) => {
-    if (!user) {
-      return User.create({
-        name: "Tran Quoc Hoan",
-        email: "Thaihoang03082003@gmail.com",
-      });
-    }
-    return user;
-  })
-  .then((user) => {
-    return user.createCart();
-  })
-  .then((cart) => {
-    // app listen at port 3000
-    app.listen(3000, (err) => {
-      console.log("node server start on port 3000");
-    });
-  })
-  .catch((error) => console.log(error));
+//sync all ORM code to database
+await sequelize.sync();
+//then we find the user login
+const user = await User.findByPk(10);
+// check user is existed ?
+if (!user) {
+  return User.create({
+    name: "Tran Quoc Hoan",
+    email: "Thaihoang03082003@gmail.com",
+  });
+}
+// user is the instance of User
+const cart = await user.createCart();
+// app listen at port 3000
+app.listen(3000, (err) => {
+  console.log("node server start on port 3000");
+});
