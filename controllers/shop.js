@@ -53,7 +53,10 @@ exports.getCart = (req, res) => {
       return cart.getProducts();
     })
     .then((products) => {
+      // console.log(products);
+      console.log("begin");
       console.log(products);
+      console.log(products[0].cartItems.quantity);
       res.render("shop/cart", {
         pageTitle: "Your Cart",
         path: "/cart",
@@ -61,12 +64,12 @@ exports.getCart = (req, res) => {
       });
     })
     .catch((error) => console.log(error));
-  console.log();
 };
 
 // post data from save to file
 exports.postCart = (req, res) => {
   const productId = req.body.productId;
+  let fetchedCart;
   req.user
     .getCart()
     .then((cart) => {
@@ -78,7 +81,7 @@ exports.postCart = (req, res) => {
       if (products.length > 0) {
         product = products[0];
       }
-
+      let newQuantity = 1;
       if (product) {
         //...
       }

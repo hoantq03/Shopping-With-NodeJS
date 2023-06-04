@@ -19,16 +19,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // public this path for access anywhere
 app.use(express.static(path.join(__dirname, "public")));
 
+// sending data of user to all path by "app.use()" and we can access this data every path
 app.use((req, res, next) => {
-  User.findByPk(10)
+  User.findByPk(1)
     .then((user) => {
       req.user = user;
+      // call next() to continue run the path below
       next();
     })
     .catch((error) => {
       console.log(error);
     });
 });
+
 // includes 2 main routes :
 // '/'
 app.use(shopRoutes);
@@ -43,7 +46,9 @@ app.use(get404.pageNotFound);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 //user can create many product
 User.hasMany(Product);
+// user has one cart
 User.hasOne(Cart);
+//cart belongs to user
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
@@ -51,19 +56,33 @@ Product.belongsToMany(Cart, { through: CartItem });
 // force to drop all table and recreate
 // { force: true }
 //sync all ORM code to database
-await sequelize.sync();
-//then we find the user login
-const user = await User.findByPk(10);
-// check user is existed ?
-if (!user) {
-  return User.create({
-    name: "Tran Quoc Hoan",
-    email: "Thaihoang03082003@gmail.com",
+sequelize
+  // .sync({ force: true })
+  .sync()
+  .then(() => {
+    //then we find the user login
+    return User.findByPk(10);
+  })
+  .then((user) => {
+    // check user is existed ?
+    if (!user) {
+      return User.create({
+        name: "Tran Quoc Hoan",
+        email: "Thaihoang03082003@gmail.com",
+      });
+    }
+    return user;
+  })
+  .then((user) => {
+    // user is the instance of User
+    user.createCart();
+  })
+  .then(() => {
+    // app listen at port 3000
+    app.listen(3000, (err) => {
+      console.log("node server start on port 3000");
+    });
+  })
+  .catch((error) => {
+    console.log(error);
   });
-}
-// user is the instance of User
-const cart = await user.createCart();
-// app listen at port 3000
-app.listen(3000, (err) => {
-  console.log("node server start on port 3000");
-});
