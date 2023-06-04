@@ -53,9 +53,6 @@ exports.getCart = (req, res) => {
       return cart.getProducts();
     })
     .then((products) => {
-      // console.log(products);
-      console.log("begin");
-      console.log(products);
       console.log(products[0].cartItems.quantity);
       res.render("shop/cart", {
         pageTitle: "Your Cart",
@@ -68,12 +65,16 @@ exports.getCart = (req, res) => {
 
 // post data from save to file
 exports.postCart = (req, res) => {
+  // get id through app.use()
   const productId = req.body.productId;
   let fetchedCart;
+  let newQuantity;
   req.user
     .getCart()
     .then((cart) => {
+      // assign fetched cart to fetchedCart variable
       fetchedCart = cart;
+      //return product which satisfied the condition
       return cart.getProducts({ where: { id: productId } });
     })
     .then((products) => {
@@ -81,14 +82,14 @@ exports.postCart = (req, res) => {
       if (products.length > 0) {
         product = products[0];
       }
-      let newQuantity = 1;
+      let oldQuantity = product.cartItems.quantity;
       if (product) {
-        //...
+        newQuantity = oldQuantity + 1;
+        oldQuantity++;
       }
       return Product.findByPk(productId);
     })
     .then((product) => {
-      let newQuantity = 1;
       return fetchedCart.addProduct(product, {
         through: { quantity: newQuantity },
       });
