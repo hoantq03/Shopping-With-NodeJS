@@ -61,7 +61,7 @@ sequelize
   .sync()
   .then(() => {
     //then we find the user login
-    return User.findByPk(10);
+    return User.findByPk(1);
   })
   .then((user) => {
     // check user is existed ?
@@ -75,7 +75,9 @@ sequelize
   })
   .then((user) => {
     // user is the instance of User
-    user.createCart();
+    user.getCart().then((cart) => {
+      if (!cart) user.createCart();
+    });
   })
   .then(() => {
     // app listen at port 3000

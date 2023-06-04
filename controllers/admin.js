@@ -102,7 +102,6 @@ exports.postEditProduct = (req, res) => {
 exports.postDeleteProduct = (req, res) => {
   const productId = req.body.productId;
   // find product
-
   Product.findByPk(productId)
     .then((product) => {
       return product.destroy();

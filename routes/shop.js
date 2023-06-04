@@ -24,7 +24,7 @@ router.get("/cart", shopControllers.getCart);
 // '/cart' ==> POST data for save cart our cart information
 router.post("/cart", shopControllers.postCart);
 // POST
-router.post("/cart-delete-product", shopControllers.postDeleteCart);
+router.post("/cart-delete-item", shopControllers.postDeleteCart);
 // get checkout View
 router.get("/checkout", shopControllers.getCheckout);
 
