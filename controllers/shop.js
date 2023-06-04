@@ -68,7 +68,7 @@ exports.postCart = (req, res) => {
   // get id through app.use()
   const productId = req.body.productId;
   let fetchedCart;
-  let newQuantity;
+  let newQuantity = 1;
   req.user
     .getCart()
     .then((cart) => {
