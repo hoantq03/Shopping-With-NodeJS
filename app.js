@@ -1,14 +1,21 @@
+//utils
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+
+//routes
 const adminRoutes = require("./routes/admin.js");
 const shopRoutes = require("./routes/shop.js");
 const get404 = require("./controllers/404.js");
+
+// ORM
 const sequelize = require("./util/database");
 const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
 //use expressJS
 const app = express();
 
@@ -16,6 +23,7 @@ app.set("view engine", "ejs");
 
 // body parser for parse request.body to json()
 app.use(bodyParser.urlencoded({ extended: false }));
+
 // public this path for access anywhere
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -50,9 +58,16 @@ User.hasMany(Product);
 User.hasOne(Cart);
 //cart belongs to user
 Cart.belongsTo(User);
+//cart includes many products
 Cart.belongsToMany(Product, { through: CartItem });
+// products belongs to many cart
 Product.belongsToMany(Cart, { through: CartItem });
-
+// order belongs to User
+Order.belongsTo(User);
+//User can have many order
+User.hasMany(Order);
+//Order belongs to many product
+Order.belongsToMany(Product, { through: OrderItem });
 // force to drop all table and recreate
 // { force: true }
 //sync all ORM code to database

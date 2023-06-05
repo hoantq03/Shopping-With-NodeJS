@@ -21,10 +21,18 @@
 
                             <%})%>
                     </ul>
-
+                    <hr>
+                    <div class="centered">
+                        <form action="/create-order" method="POST">
+                            <button type="submit" class="btn danger">Check Out</button>
+                        </form>
+                    </div>
                     <%} else {%>
                         <h1>My Products</h1>
-                        <p>No Product Found</p>
+                        <p>
+                            <% if (path==='/cart' || path==='orders' ){ %>Nothing Here<% } else{ %>No Product Found<%}
+                                        %>
+                        </p>
                         <%}%>
             </main>
     </body>
