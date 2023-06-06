@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
 const db = require("../util/database");
+
 // get add product views for path : /admin/add-product
 exports.getAddProduct = (req, res) => {
   //render EJS file at path ('admin/edit-product') and passing some data
@@ -12,24 +13,21 @@ exports.getAddProduct = (req, res) => {
 };
 
 //post data for save product
-exports.postAddProduct = (req, res) => {
+exports.postAddProduct = async (req, res) => {
   // create new product and passing data from form
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
-  const userId = req.user.id;
-  req.user
-    .createProduct({
-      title: title,
-      price: price,
-      imageUrl: imageUrl,
-      description: description,
-    })
-    .then(() => {
-      res.redirect("/admin/products");
-    })
-    .catch((error) => console.log(error));
+  try {
+    const product = new Product(title, price, description, imageUrl);
+    console.log(product);
+    await product.save();
+    console.log("created product");
+    res.redirect("/");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // get products view for admin to delete or edit

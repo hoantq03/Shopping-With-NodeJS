@@ -7,16 +7,16 @@ router.get("/add-product", adminController.getAddProduct);
 // /admin/add-product => POST ( post data from form and save this data ), post method active when the form is submitted
 router.post("/add-product", adminController.postAddProduct);
 
-// /admin/products => GET ( get form to see all products )
-router.get("/products", adminController.getAdminProducts);
+// // /admin/products => GET ( get form to see all products )
+// router.get("/products", adminController.getAdminProducts);
 
-// get Edit product view with passing the path dynamic
-router.get("/edit-product/:productId", adminController.getEditProduct);
-// /edit-product => POST (post data to save ), post method active when the form is submitted
-router.post("/edit-product", adminController.postEditProduct);
+// // get Edit product view with passing the path dynamic
+// router.get("/edit-product/:productId", adminController.getEditProduct);
+// // /edit-product => POST (post data to save ), post method active when the form is submitted
+// router.post("/edit-product", adminController.postEditProduct);
 
-// POST delete product
-router.post("/delete-product", adminController.postDeleteProduct);
+// // POST delete product
+// router.post("/delete-product", adminController.postDeleteProduct);
 
 // export all router for app.js use
 module.exports = router;
