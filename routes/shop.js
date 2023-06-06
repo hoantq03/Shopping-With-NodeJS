@@ -1,35 +1,25 @@
-const express = require("express");
+const path = require('path');
+
+const express = require('express');
+
+const shopController = require('../controllers/shop');
+
 const router = express.Router();
-const shopControllers = require("../controllers/shop");
 
-/**
- * @author Quochoan_tran
- * @explain because not admin so, the path '/' or '/products' don't have POST methods, just seen, not adjust any data
- */
+router.get('/', shopController.getIndex);
 
-// get view show all products in file at the home page
-router.get("/", shopControllers.getIndex);
+router.get('/products', shopController.getProducts);
 
-// same as get index but in the view EJS have 'details' button
-router.get("/products", shopControllers.getProducts);
+router.get('/products/:productId', shopController.getProduct);
 
-// get 1 product view with dynamic path (productID)
-// (the purpose of /:productId is get productId from params )
-// ProductId passing from 'a' HTML tag
-router.get("/products/:productId", shopControllers.getProduct);
+router.get('/cart', shopController.getCart);
 
-// get cart view, show all products was being added to cart before
-router.get("/cart", shopControllers.getCart);
+router.post('/cart', shopController.postCart);
 
-// '/cart' ==> POST data for save cart our cart information
-router.post("/cart", shopControllers.postCart);
-// POST
-router.post("/cart-delete-item", shopControllers.postDeleteCart);
-// get checkout View
-router.get("/checkout", shopControllers.getCheckout);
+router.post('/cart-delete-item', shopController.postCartDeleteProduct);
 
-// get orders view
-router.get("/orders", shopControllers.getOrders);
+router.post('/create-order', shopController.postOrder);
 
-// export router of /shopController
+router.get('/orders', shopController.getOrders);
+
 module.exports = router;

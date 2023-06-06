@@ -1,32 +1,32 @@
 <%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/cart.css">
     </head>
 
     <body>
         <%- include('../includes/navigation.ejs') %>
-            <main>
-                <% if(prods.length> 0) {%>
-                    <ul class="cart__item-list">
-                        <% prods.forEach(product=> {%>
-                            <li class="cart-item">
-                                <h1>
-                                    <%= product.title %>
-                                </h1>
-                                <h2>Quantity : <%= product.cartItems.quantity%>
-                                        <form action="/cart-delete-item" method="POST">
-                                            <input type="hidden" value="<%= product.id%>" name="productId">
-                                            <button class="btn danger" type="submit">Delete</button>
-                                        </form>
-                                </h2>
-                            </li>
-
-                            <%})%>
-                    </ul>
-
-                    <%} else {%>
-                        <h1>My Products</h1>
-                        <p>No Product Found</p>
-                        <%}%>
-            </main>
-    </body>
-
-    </html>
+        <main>
+            <% if (products.length > 0) { %>
+                <ul class="cart__item-list">
+                    <% products.forEach(p => { %>
+                        <li class="cart__item">
+                            <h1><%= p.title %></h1>
+                            <h2>Quantity: <%= p.cartItem.quantity %></h2>
+                            <form action="/cart-delete-item" method="POST">
+                                <input type="hidden" value="<%= p.id %>" name="productId">
+                                <button class="btn danger" type="submit">Delete</button>
+                            </form>
+                        </li>
+                    <% }) %>
+                </ul>
+                <hr>
+                <div class="centered">
+                    <form action="/create-order" method="POST">
+                        <button type="submit" class="btn">Order Now!</button>
+                    </form>
+                </div>
+                
+            <% } else { %>
+                <h1>No Products in Cart!</h1>
+            <% } %>
+        </main>
+        <%- include('../includes/end.ejs') %>

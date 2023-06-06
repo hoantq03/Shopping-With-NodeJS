@@ -1,22 +1,24 @@
-const express = require("express");
-const adminController = require("../controllers/admin.js");
+const path = require('path');
+
+const express = require('express');
+
+const adminController = require('../controllers/admin');
+
 const router = express.Router();
 
-// /admin/add-product => GET ( get form to add product )
-router.get("/add-product", adminController.getAddProduct);
-// /admin/add-product => POST ( post data from form and save this data ), post method active when the form is submitted
-router.post("/add-product", adminController.postAddProduct);
+// /admin/add-product => GET
+router.get('/add-product', adminController.getAddProduct);
 
-// // /admin/products => GET ( get form to see all products )
-// router.get("/products", adminController.getAdminProducts);
+// /admin/products => GET
+router.get('/products', adminController.getProducts);
 
-// // get Edit product view with passing the path dynamic
-// router.get("/edit-product/:productId", adminController.getEditProduct);
-// // /edit-product => POST (post data to save ), post method active when the form is submitted
-// router.post("/edit-product", adminController.postEditProduct);
+// /admin/add-product => POST
+router.post('/add-product', adminController.postAddProduct);
 
-// // POST delete product
-// router.post("/delete-product", adminController.postDeleteProduct);
+router.get('/edit-product/:productId', adminController.getEditProduct);
 
-// export all router for app.js use
+router.post('/edit-product', adminController.postEditProduct);
+
+router.post('/delete-product', adminController.postDeleteProduct);
+
 module.exports = router;
