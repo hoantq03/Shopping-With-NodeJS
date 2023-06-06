@@ -3,26 +3,4 @@
 
     <body>
         <%- include('../includes/navigation.ejs') %>
-            <main>
-                <% if (products.length <=0) { %>
-                    <h1>Nothing there!</h1>
-                    <% } else { %>
-                        <ul>
-                            <% products.forEach(product=> { %>
-                                <li>
-                                    <h1># product ID : <%= product.id %>,
-                                            producted by <%= userName %>
-                                    </h1>
-                                    <ul>
-                                        <% products.forEach(product=> { %>
-                                            <li>
-                                                <%= product.title %> (<%= product.quantity %>)
-                                            </li>
-                                            <% }); %>
-                                    </ul>
-                                </li>
-                                <% }); %>
-                        </ul>
-                        <% } %>
-            </main>
             <%- include('../includes/end.ejs') %>

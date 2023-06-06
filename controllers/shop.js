@@ -1,6 +1,5 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
-const { postDeleteProduct } = require("./admin");
 // get index means get all data of products and passing this to the products(in this project, it can be call 'index.ejs') view
 exports.getIndex = (req, res) => {
   // fetch all data
@@ -115,6 +114,7 @@ exports.postDeleteCart = (req, res) => {
       if (products) {
         product = products[0];
       }
+      console.log(product.cartItems);
       product.cartItems.destroy();
     })
     .then((result) => {
@@ -125,59 +125,17 @@ exports.postDeleteCart = (req, res) => {
     });
 };
 
-//post orders
-
-exports.postOrder = (req, res) => {
-  let fetchedCart;
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then((products) => {
-      return req.user
-        .createOrder()
-        .then((order) => {
-          return order.addProducts(
-            products.map((product) => {
-              product.quantity = product.cartItems.quantity;
-              product.save();
-              order.save();
-            })
-          );
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    })
-    .then((result) => {
-      return fetchedCart.setProducts(null);
-    })
-    .then((result) => {
-      res.redirect("/orders");
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+//checkout
+exports.getCheckout = (req, res) => {
+  res.render("shop/checkout", {
+    path: "/checkout",
+    pageTitle: "Checkout",
+  });
 };
 
-// get order
-exports.getOrder = (req, res) => {
-  req.user.getOrders({ include: ["products"] }).then((orders) => {
-    orders[0]
-      .getProducts()
-      .then((products) => {
-        console.log(products);
-        res.render("shop/order", {
-          pageTitle: "Order",
-          path: "/orders",
-          userName: req.user.name,
-          products: products,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+exports.getOrders = (req, res) => {
+  res.render("shop/order", {
+    pageTitle: "Your Cart",
+    path: "/orders",
   });
 };
