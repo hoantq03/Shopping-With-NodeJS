@@ -8,19 +8,21 @@
                     <h1>Nothing there!</h1>
                     <% } else { %>
                         <ul>
-                            <% orders.forEach(order=> { %>
+                            <% for(let i=0;i < orders.length;i++){ %>
                                 <li>
-                                    <h1># <%= order.id %>
+                                    <h1># <%= orders[i].id %>
                                     </h1>
                                     <ul>
-                                        <% order.products.forEach(product=> { %>
+                                        <% for(let j=0; j < orders[i].products.length;j++){ %>
                                             <li>
-                                                <%= product.title %> (<%= product.cartItem.quantity %>)
+                                                <%= orders[i].products[j].title %> (
+                                                    <%=orders[i].products[j].orderItem.quantity %>
+                                                        )
                                             </li>
-                                            <% }); %>
+                                            <% }; %>
                                     </ul>
                                 </li>
-                                <% }); %>
+                                <% }; %>
                         </ul>
                         <% } %>
             </main>
