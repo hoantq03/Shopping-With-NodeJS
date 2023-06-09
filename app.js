@@ -27,16 +27,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
-  // User.findUserById(new ObjectId("648151f3c1300878ea56551c"))
-  //   .then((user) => {
-  //     req.user = new User(user.name, user.email, user.cart, user._id);
-  //     console.log(req.user);
-  //     next();
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-  next();
+  User.findById("6483474c6e79ccaff994fe2b")
+    .then((user) => {
+      req.user = user;
+      console.log(req.user);
+      next();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 //use this two routes
 app.use("/admin", adminRoutes);
@@ -49,9 +48,31 @@ mongoose
     "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs?retryWrites=true&w=majority"
   )
   .then((result) => {
-    app.listen(3000, () => {
-      console.log("server is running on port 3000");
-    });
+    User.findById("6483474c6e79ccaff994fe2b")
+      .then((existingUser) => {
+        if (!existingUser) {
+          const user = new User({
+            name: "Tran Quoc Hoan",
+            email: "Thaihoang03082003@gmail.com",
+            cart: {
+              items: [],
+            },
+          });
+          console.log("created");
+          return user.save();
+        } else {
+          console.log("existed");
+          return existingUser;
+        }
+      })
+      .then((user) => {
+        app.listen(3000, () => {
+          console.log("server is running on port 3000");
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   })
   .catch((error) => {
     console.log(error);

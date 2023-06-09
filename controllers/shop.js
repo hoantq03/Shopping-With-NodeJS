@@ -46,12 +46,13 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then((allProductsInCart) => {
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items;
       res.render("shop/cart", {
         path: "/cart",
         pageTitle: "Your Cart",
-        products: allProductsInCart,
+        products: products,
       });
     })
     .catch((error) => {
@@ -61,8 +62,8 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   // get product ID from hidden form in EJS
-  const prodId = new ObjectId(req.body.productId);
-  Product.fetchProduct(prodId)
+  const prodId = req.body.productId;
+  Product.findById(prodId)
     .then((product) => {
       // add this product you just have found before to cart of current user
       return req.user.addToCart(product);
@@ -78,7 +79,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   req.user
-    .deleteCartItem(prodId)
+    .removeFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
     })

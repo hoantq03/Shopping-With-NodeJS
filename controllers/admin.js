@@ -21,6 +21,7 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
+    userId: req.user,
   });
   product
     // save() is method of mongoose, not of Product module
@@ -76,6 +77,8 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product.find()
+    // .select("title price _id imageUrl description")
+    // .populate("userId", "name")
     .then((products) => {
       res.render("admin/products", {
         prods: products,
