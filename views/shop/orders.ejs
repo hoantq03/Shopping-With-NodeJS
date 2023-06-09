@@ -7,22 +7,22 @@
                 <% if (orders.length <=0) { %>
                     <h1>Nothing there!</h1>
                     <% } else { %>
-                        <ul>
-                            <% for(let i=0;i < orders.length;i++){ %>
-                                <li>
-                                    <h1># <%= orders[i].id %>
+                        <ul class="orders">
+                            <% orders.forEach( order=>{ %>
+                                <li class="orders__item">
+                                    <h1>Order # <%= order._id %>
                                     </h1>
-                                    <ul>
-                                        <% for(let j=0; j < orders[i].products.length;j++){ %>
-                                            <li>
-                                                <%= orders[i].products[j].title %> (
-                                                    <%=orders[i].products[j].orderItem.quantity %>
+                                    <ul class="orders__products">
+                                        <% order.items.forEach(product=>{ %>
+                                            <li class="orders__products">
+                                                <%= product.title%> (
+                                                    <%=product.quantity %>
                                                         )
                                             </li>
-                                            <% }; %>
+                                            <% }); %>
                                     </ul>
                                 </li>
-                                <% }; %>
+                                <% }); %>
                         </ul>
                         <% } %>
             </main>

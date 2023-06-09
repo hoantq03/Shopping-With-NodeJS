@@ -24,7 +24,6 @@ exports.postAddProduct = (req, res, next) => {
     null,
     userId
   );
-  console.log(product);
   product
     .save()
     .then((result) => {

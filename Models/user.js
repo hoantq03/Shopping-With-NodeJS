@@ -80,6 +80,61 @@ class User {
         throw error;
       });
   }
+
+  deleteCartItem(id) {
+    const db = getDb();
+    const updatedCart = [...this.cart.items];
+    const idObject = new ObjectId(id);
+    // find the index of the item to be deleted
+    const index = updatedCart.findIndex((item) => {
+      return item.productId.toString() === idObject.toString();
+    });
+    if (index >= 0) {
+      // remove the item from the array
+      updatedCart.splice(index, 1);
+    }
+    return db
+      .collection("users")
+      .updateOne({ _id: this._id }, { $set: { cart: { items: updatedCart } } })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  addOrders() {
+    const db = getDb();
+    return this.getCart()
+      .then((products) => {
+        const order = {
+          items: products,
+          user: {
+            _id: new ObjectId(this._id),
+            name: this.name,
+          },
+        };
+        return db.collection("orders").insertOne(order);
+      })
+      .then((result) => {
+        this.cart.items = [];
+        return db
+          .collection("users")
+          .updateOne({ _id: this._id }, { $set: { cart: { items: [] } } })
+          .catch((error) => {
+            console.log(error);
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  getOrders() {
+    const db = getDb();
+    return db
+      .collection("orders")
+      .find({ "user._id": new ObjectId(this._id) })
+      .toArray();
+  }
 }
 
 module.exports = User;
