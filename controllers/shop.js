@@ -2,10 +2,11 @@ const mongodb = require("mongodb");
 const ObjectId = mongodb.ObjectId;
 const Product = require("../models/product");
 const User = require("../models/user");
+const Order = require("../models/order");
+
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
-      console.log(products);
       res.render("shop/product-list", {
         prods: products,
         pageTitle: "All Products",
@@ -88,7 +89,17 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   req.user
-    .addOrders()
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items.map((item) => {
+        return { quantity: item.quantity, product: { ...item.productId._doc } };
+      });
+      const order = new Order({
+        user: { name: req.user.name, userId: req.user._id },
+        products: products,
+      });
+      return order.save();
+    })
     .then((result) => {
       res.redirect("/orders");
     })
@@ -96,13 +107,19 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order.find()
+    .populate("products.product.productId")
     .then((orders) => {
+      console.log(orders);
       res.render("shop/orders", {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
+      });
+    })
+    .then(() => {
+      req.user.clearCart().then((result) => {
+        console.log(result);
       });
     })
     .catch((err) => console.log(err));

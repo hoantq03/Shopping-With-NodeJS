@@ -53,11 +53,15 @@ userSchema.methods.addToCart = function (product) {
 };
 
 userSchema.methods.removeFromCart = function (id) {
-  console.log(this.cart.items);
   const updatedCartItem = this.cart.items.filter((item) => {
     return item.productId.toString() !== id.toString();
   });
   this.cart.items = updatedCartItem;
+  return this.save();
+};
+
+userSchema.methods.clearCart = function () {
+  this.cart.items = [];
   return this.save();
 };
 
