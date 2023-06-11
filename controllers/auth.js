@@ -21,3 +21,13 @@ exports.postLogin = (req, res) => {
       console.log(error);
     });
 };
+
+exports.postLogout = (req, res) => {
+  console.log("begin");
+  req.session.user = new User().init(req.session.user);
+  req.session.destroy((error) => {
+    console.log(error);
+    console.log(req.session);
+    res.redirect("/");
+  });
+};
