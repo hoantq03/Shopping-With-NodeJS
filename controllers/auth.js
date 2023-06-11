@@ -15,7 +15,10 @@ exports.postLogin = (req, res) => {
       req.session.isLoggedIn = true;
       req.session.user = user;
       console.log("logging is accepted");
-      res.redirect("/");
+      req.session.save((error) => {
+        console.log(error);
+        res.redirect("/");
+      });
     })
     .catch((error) => {
       console.log(error);
@@ -23,11 +26,8 @@ exports.postLogin = (req, res) => {
 };
 
 exports.postLogout = (req, res) => {
-  console.log("begin");
   req.session.user = new User().init(req.session.user);
   req.session.destroy((error) => {
-    console.log(error);
-    console.log(req.session);
     res.redirect("/");
   });
 };

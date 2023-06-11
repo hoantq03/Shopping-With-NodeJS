@@ -78,24 +78,19 @@ exports.getCart = (req, res, next) => {
 //send data to cart
 exports.postCart = (req, res, next) => {
   // get product ID from hidden form in EJS
-  const isLoggedIn = req.session.isLoggedIn;
-  if (isLoggedIn) {
-    const prodId = req.body.productId;
-    req.session.user = new User().init(req.session.user);
-    Product.findById(prodId)
-      .then((product) => {
-        // add this product you just have found before to cart of current user
-        return req.session.user.addToCart(product);
-      })
-      .then((result) => {
-        res.redirect("/cart");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  } else {
-    res.redirect("/");
-  }
+  const prodId = req.body.productId;
+  req.session.user = new User().init(req.session.user);
+  Product.findById(prodId)
+    .then((product) => {
+      // add this product you just have found before to cart of current user
+      return req.session.user.addToCart(product);
+    })
+    .then((result) => {
+      res.redirect("/cart");
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 
 // delete product in cart
