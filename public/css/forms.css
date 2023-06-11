@@ -6,6 +6,15 @@
 .form-control input,
 .form-control textarea {
   display: block;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  margin: 0 auto;
+}
+
+.form-control-login label,
+.form-control-login input,
+.form-control-login textarea {
+  display: block;
   width: 25%;
   margin-bottom: 0.25rem;
   margin: 0 auto;

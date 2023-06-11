@@ -1,11 +1,10 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
-
+const User = require("../models/user");
 //get all products
 exports.getProducts = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
-
+  const value = req.session.isLoggedIn;
+  console.log(value);
   Product.find()
     .then((products) => {
       res.render("shop/product-list", {
@@ -22,8 +21,7 @@ exports.getProducts = (req, res, next) => {
 
 //get one product
 exports.getProduct = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+  const value = req.session.isLoggedIn;
 
   const prodId = req.params.productId;
   Product.findById(prodId)
@@ -40,9 +38,7 @@ exports.getProduct = (req, res, next) => {
 
 // get all products at home pages
 exports.getIndex = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
-
+  const value = req.session.isLoggedIn;
   Product.find()
     .then((products) => {
       res.render("shop/index", {
@@ -59,13 +55,14 @@ exports.getIndex = (req, res, next) => {
 
 //get cart products view
 exports.getCart = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
-  req.user
+  const value = req.session.isLoggedIn;
+  req.session.user = new User().init(req.session.user);
+  req.session.user
     //reference to product info by ID
     .populate("cart.items.productId")
     .then((user) => {
       const products = user.cart.items;
+      console.log(products);
       res.render("shop/cart", {
         path: "/cart",
         pageTitle: "Your Cart",
@@ -82,10 +79,12 @@ exports.getCart = (req, res, next) => {
 exports.postCart = (req, res, next) => {
   // get product ID from hidden form in EJS
   const prodId = req.body.productId;
+  req.session.user = new User().init(req.session.user);
+
   Product.findById(prodId)
     .then((product) => {
       // add this product you just have found before to cart of current user
-      return req.user.addToCart(product);
+      return req.session.user.addToCart(product);
     })
     .then((result) => {
       res.redirect("/cart");
@@ -99,8 +98,9 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   // get id from EJS
   const prodId = req.body.productId;
+  req.session.user = new User().init(req.session.user);
 
-  req.user
+  req.session.user
     .removeFromCart(prodId)
     .then((result) => {
       res.redirect("/cart");
@@ -111,7 +111,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
 // send date of product we want to order
 exports.postOrder = (req, res, next) => {
   //get all info of product by populate
-  req.user
+  req.session.user = new User().init(req.session.user);
+
+  req.session.user
     .populate("cart.items.productId")
     .then((user) => {
       // map to just products detail
@@ -129,12 +131,17 @@ exports.postOrder = (req, res, next) => {
       //create new order document
       const order = new Order({
         user: {
-          name: req.user.name,
-          userId: req.user._id,
+          name: req.session.user.name,
+          userId: req.session.user._id,
         },
         products: products,
       });
       return order.save();
+    })
+    .then(() => {
+      req.session.user.clearCart().then((result) => {
+        console.log(result);
+      });
     })
     .then((result) => {
       res.redirect("/orders");
@@ -144,8 +151,7 @@ exports.postOrder = (req, res, next) => {
 
 // get view of orders information
 exports.getOrders = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+  const value = req.session.isLoggedIn;
 
   Order.find()
     .populate("products.product.productId")
@@ -156,11 +162,6 @@ exports.getOrders = (req, res, next) => {
         pageTitle: "Your Orders",
         orders: orders,
         isLoggedIn: value,
-      });
-    })
-    .then(() => {
-      req.user.clearCart().then((result) => {
-        console.log(result);
       });
     })
     .catch((err) => console.log(err));

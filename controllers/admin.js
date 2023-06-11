@@ -2,8 +2,7 @@ const Product = require("../models/product");
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+  const value = req.session.isLoggedIn;
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
@@ -25,8 +24,8 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
-    //userId from user login
-    userId: req.user,
+    //userId from user login ( session )
+    userId: req.session.user,
   });
   product
     // save() is method of mongoose, not from Product module
@@ -41,8 +40,7 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.getEditProduct = (req, res, next) => {
   //check edit mode is true by params of url
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+  const value = req.session.isLoggedIn;
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect("/");
@@ -74,7 +72,7 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-
+  const prodId = req.body.productId;
   // find product and update
   Product.findById(prodId)
     .then((product) => {
@@ -92,8 +90,7 @@ exports.postEditProduct = (req, res, next) => {
 
 // get all products view
 exports.getProducts = (req, res, next) => {
-  const value =
-    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+  const value = req.session.isLoggedIn;
 
   Product.find()
     .then((products) => {

@@ -2,30 +2,24 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
+//require user mongoose
+const User = require("./models/user");
 const errorController = require("./controllers/error");
 
-// mongoDB section
-const mongoose = require("mongoose");
-//require user
-const User = require("./models/user");
+const MONGODB_URI =
+  "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs";
 
 const app = express();
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: "sessions",
+});
 
 app.set("view engine", "ejs");
 app.set("views", "views");
-
-//
-app.use((req, res, next) => {
-  User.findById("6483474c6e79ccaff994fe2b")
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
 
 //my app have two routes
 const adminRoutes = require("./routes/admin");
@@ -35,6 +29,17 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// use session
+
+app.use(
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
+
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
@@ -43,9 +48,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs?retryWrites=true&w=majority"
-  )
+  .connect(MONGODB_URI)
   .then((result) => {
     User.findById("6483474c6e79ccaff994fe2b")
       .then((existingUser) => {

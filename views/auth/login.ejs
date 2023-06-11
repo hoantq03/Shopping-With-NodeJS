@@ -4,15 +4,15 @@
     </head>
 
     <body>
-        <%- include('../includes/navigation.ejs') %>
+        <%- include('../includes/navigation.ejs', {isLoggedIn: isLoggedIn}) %>
 
             <main>
-                <form class="login-form" action="/login" method="POST">
-                    <div class="form-control">
+                <form class="login-form-login" action="/login" method="POST">
+                    <div class="form-control-login">
                         <label for="email">E-Mail</label>
                         <input type="email" name="email" id="email">
                     </div>
-                    <div class="form-control">
+                    <div class="form-control-login">
                         <label for="password">Password</label>
                         <input type="password" name="password" id="password">
                     </div>
