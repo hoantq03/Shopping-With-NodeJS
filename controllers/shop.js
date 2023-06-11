@@ -1,9 +1,7 @@
-const mongodb = require("mongodb");
-const ObjectId = mongodb.ObjectId;
 const Product = require("../models/product");
-const User = require("../models/user");
 const Order = require("../models/order");
 
+//get all products
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
@@ -18,6 +16,7 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
+//get one product
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
@@ -31,6 +30,7 @@ exports.getProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+// get all products at home pages
 exports.getIndex = (req, res, next) => {
   Product.find()
     .then((products) => {
@@ -45,8 +45,10 @@ exports.getIndex = (req, res, next) => {
     });
 };
 
+//get cart products view
 exports.getCart = (req, res, next) => {
   req.user
+    //reference to product info by ID
     .populate("cart.items.productId")
     .then((user) => {
       const products = user.cart.items;
@@ -61,6 +63,7 @@ exports.getCart = (req, res, next) => {
     });
 };
 
+//send data to cart
 exports.postCart = (req, res, next) => {
   // get product ID from hidden form in EJS
   const prodId = req.body.productId;
@@ -77,8 +80,11 @@ exports.postCart = (req, res, next) => {
     });
 };
 
+// delete product in cart
 exports.postCartDeleteProduct = (req, res, next) => {
+  // get id from EJS
   const prodId = req.body.productId;
+
   req.user
     .removeFromCart(prodId)
     .then((result) => {
@@ -87,15 +93,30 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+// send date of product we want to order
 exports.postOrder = (req, res, next) => {
+  //get all info of product by populate
   req.user
     .populate("cart.items.productId")
     .then((user) => {
+      // map to just products detail
+      // format look like :
+      // user.cart : {
+      // quantity : xxx,
+      // products :{
+      // ... all data of product
+      //  }
+      //}
       const products = user.cart.items.map((item) => {
         return { quantity: item.quantity, product: { ...item.productId._doc } };
       });
+
+      //create new order document
       const order = new Order({
-        user: { name: req.user.name, userId: req.user._id },
+        user: {
+          name: req.user.name,
+          userId: req.user._id,
+        },
         products: products,
       });
       return order.save();
@@ -106,6 +127,7 @@ exports.postOrder = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+// get view of orders information
 exports.getOrders = (req, res, next) => {
   Order.find()
     .populate("products.product.productId")

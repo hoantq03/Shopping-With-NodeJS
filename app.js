@@ -6,8 +6,6 @@ const bodyParser = require("body-parser");
 const errorController = require("./controllers/error");
 
 // mongoDB section
-const mongodb = require("mongodb");
-const ObjectId = mongodb.ObjectId;
 const mongoose = require("mongoose");
 //require user
 const User = require("./models/user");
@@ -18,15 +16,6 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 //
-
-//my app have two routes
-const adminRoutes = require("./routes/admin");
-const shopRoutes = require("./routes/shop");
-const authRoutes = require("./routes/auth");
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
-
 app.use((req, res, next) => {
   User.findById("6483474c6e79ccaff994fe2b")
     .then((user) => {
@@ -37,6 +26,15 @@ app.use((req, res, next) => {
       console.log(error);
     });
 });
+
+//my app have two routes
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
+
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);

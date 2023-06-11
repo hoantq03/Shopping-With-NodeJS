@@ -1,7 +1,6 @@
 const Product = require("../models/product");
-const mongodb = require("mongodb");
-const ObjectId = mongodb.ObjectId;
 
+// get add product form
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
@@ -10,21 +9,24 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
+// post data from product form
 exports.postAddProduct = (req, res, next) => {
+  //get all data from request send by form
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  // const userId = req.user._id;
+
   const product = new Product({
     title: title,
     price: price,
     description: description,
     imageUrl: imageUrl,
+    //userId from user login
     userId: req.user,
   });
   product
-    // save() is method of mongoose, not of Product module
+    // save() is method of mongoose, not from Product module
     .save()
     .then((result) => {
       res.redirect("/admin/products");
@@ -35,11 +37,15 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getEditProduct = (req, res, next) => {
+  //check edit mode is true by params of url
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect("/");
   }
+  //get productId from params
   const prodId = req.params.productId;
+
+  //findById method come from Mongoose
   Product.findById(prodId)
     .then((product) => {
       if (!product) {
@@ -55,12 +61,15 @@ exports.getEditProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+// post new updated data
 exports.postEditProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+  //get all new data from form
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+
+  // find product and update
   Product.findById(prodId)
     .then((product) => {
       product.title = updatedTitle;
@@ -75,10 +84,9 @@ exports.postEditProduct = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+// get all products view
 exports.getProducts = (req, res, next) => {
   Product.find()
-    // .select("title price _id imageUrl description")
-    // .populate("userId", "name")
     .then((products) => {
       res.render("admin/products", {
         prods: products,
@@ -89,6 +97,7 @@ exports.getProducts = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+//delete product in database
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findByIdAndRemove(prodId)

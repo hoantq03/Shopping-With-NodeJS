@@ -25,10 +25,11 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.addToCart = function (product) {
-  // check product is existed in DB ?
+  // because this.cart.items is array, so we can use array's methods
   const cartProductIndex = this.cart.items.findIndex((productInCart) => {
     return productInCart.productId.toString() === product._id.toString();
   });
+  //copy current cart
   const currentCart = [...this.cart.items];
   // if existed, just increase the quantity
   if (cartProductIndex >= 0) {
@@ -52,55 +53,22 @@ userSchema.methods.addToCart = function (product) {
   return this.save();
 };
 
+//remove products in cart
 userSchema.methods.removeFromCart = function (id) {
+  // filter product to get all products but exception the product we want to remove
   const updatedCartItem = this.cart.items.filter((item) => {
     return item.productId.toString() !== id.toString();
   });
+  // updated cart after filter
   this.cart.items = updatedCartItem;
   return this.save();
 };
 
+// clear all products in cart
 userSchema.methods.clearCart = function () {
+  // set to empty array
   this.cart.items = [];
   return this.save();
 };
 
 module.exports = mongoose.model("User", userSchema);
-
-//   addOrders() {
-//     const db = getDb();
-//     return this.getCart()
-//       .then((products) => {
-//         const order = {
-//           items: products,
-//           user: {
-//             _id: new ObjectId(this._id),
-//             name: this.name,
-//           },
-//         };
-//         return db.collection("orders").insertOne(order);
-//       })
-//       .then((result) => {
-//         this.cart.items = [];
-//         return db
-//           .collection("users")
-//           .updateOne({ _id: this._id }, { $set: { cart: { items: [] } } })
-//           .catch((error) => {
-//             console.log(error);
-//           });
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//       });
-//   }
-
-//   getOrders() {
-//     const db = getDb();
-//     return db
-//       .collection("orders")
-//       .find({ "user._id": new ObjectId(this._id) })
-//       .toArray();
-//   }
-// }
-
-// module.exports = User;
