@@ -3,12 +3,16 @@ const Order = require("../models/order");
 
 //get all products
 exports.getProducts = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+
   Product.find()
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
         pageTitle: "All Products",
         path: "/products",
+        isLoggedIn: value,
       });
     })
     .catch((err) => {
@@ -18,6 +22,9 @@ exports.getProducts = (req, res, next) => {
 
 //get one product
 exports.getProduct = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product) => {
@@ -25,6 +32,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: "/products",
+        isLoggedIn: value,
       });
     })
     .catch((err) => console.log(err));
@@ -32,12 +40,16 @@ exports.getProduct = (req, res, next) => {
 
 // get all products at home pages
 exports.getIndex = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+
   Product.find()
     .then((products) => {
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        isLoggedIn: value,
       });
     })
     .catch((err) => {
@@ -47,6 +59,8 @@ exports.getIndex = (req, res, next) => {
 
 //get cart products view
 exports.getCart = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
   req.user
     //reference to product info by ID
     .populate("cart.items.productId")
@@ -56,6 +70,7 @@ exports.getCart = (req, res, next) => {
         path: "/cart",
         pageTitle: "Your Cart",
         products: products,
+        isLoggedIn: value,
       });
     })
     .catch((error) => {
@@ -129,6 +144,9 @@ exports.postOrder = (req, res, next) => {
 
 // get view of orders information
 exports.getOrders = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+
   Order.find()
     .populate("products.product.productId")
     .then((orders) => {
@@ -137,6 +155,7 @@ exports.getOrders = (req, res, next) => {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
+        isLoggedIn: value,
       });
     })
     .then(() => {

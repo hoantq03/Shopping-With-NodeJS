@@ -2,10 +2,13 @@ const Product = require("../models/product");
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
+    isLoggedIn: value,
   });
 };
 
@@ -38,6 +41,8 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.getEditProduct = (req, res, next) => {
   //check edit mode is true by params of url
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect("/");
@@ -56,6 +61,7 @@ exports.getEditProduct = (req, res, next) => {
         path: "/admin/edit-product",
         editing: editMode,
         product: product,
+        isLoggedIn: value,
       });
     })
     .catch((err) => console.log(err));
@@ -86,12 +92,16 @@ exports.postEditProduct = (req, res, next) => {
 
 // get all products view
 exports.getProducts = (req, res, next) => {
+  const value =
+    req.get("Cookie")?.split(";")[0]?.trim()?.split("=")[1] === "true";
+
   Product.find()
     .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
+        isLoggedIn: value,
       });
     })
     .catch((err) => console.log(err));
