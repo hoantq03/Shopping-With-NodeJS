@@ -22,57 +22,80 @@ exports.getProducts = (req, res, next) => {
 //get one product
 exports.getProduct = (req, res, next) => {
   const value = req.session.isLoggedIn;
-
-  const prodId = req.params.productId;
-  Product.findById(prodId)
-    .then((product) => {
-      res.render("shop/product-detail", {
-        product: product,
-        pageTitle: product.title,
-        path: "/products",
-        isLoggedIn: value,
-      });
-    })
-    .catch((err) => console.log(err));
+  if (value) {
+    const prodId = req.params.productId;
+    Product.findById(prodId)
+      .then((product) => {
+        res.render("shop/product-detail", {
+          product: product,
+          pageTitle: product.title,
+          path: "/products",
+          isLoggedIn: value,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
+    });
+  }
 };
 
 // get all products at home pages
 exports.getIndex = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  Product.find()
-    .then((products) => {
-      res.render("shop/index", {
-        prods: products,
-        pageTitle: "Shop",
-        path: "/",
-        isLoggedIn: value,
+  if (value) {
+    Product.find()
+      .then((products) => {
+        res.render("shop/index", {
+          prods: products,
+          pageTitle: "Shop",
+          path: "/",
+          isLoggedIn: value,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    })
-    .catch((err) => {
-      console.log(err);
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
     });
+  }
 };
 
 //get cart products view
 exports.getCart = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  req.session.user = new User().init(req.session.user);
-  req.session.user
-    //reference to product info by ID
-    .populate("cart.items.productId")
-    .then((user) => {
-      const products = user.cart.items;
-      console.log(products);
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: products,
-        isLoggedIn: value,
+  if (value) {
+    req.session.user = new User().init(req.session.user);
+    req.session.user
+      //reference to product info by ID
+      .populate("cart.items.productId")
+      .then((user) => {
+        const products = user.cart.items;
+        console.log(products);
+        res.render("shop/cart", {
+          path: "/cart",
+          pageTitle: "Your Cart",
+          products: products,
+          isLoggedIn: value,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
       });
-    })
-    .catch((error) => {
-      console.log(error);
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
     });
+  }
 };
 
 //send data to cart
@@ -151,17 +174,24 @@ exports.postOrder = (req, res, next) => {
 // get view of orders information
 exports.getOrders = (req, res, next) => {
   const value = req.session.isLoggedIn;
-
-  Order.find()
-    .populate("products.product.productId")
-    .then((orders) => {
-      console.log(orders);
-      res.render("shop/orders", {
-        path: "/orders",
-        pageTitle: "Your Orders",
-        orders: orders,
-        isLoggedIn: value,
-      });
-    })
-    .catch((err) => console.log(err));
+  if (value) {
+    Order.find()
+      .populate("products.product.productId")
+      .then((orders) => {
+        console.log(orders);
+        res.render("shop/orders", {
+          path: "/orders",
+          pageTitle: "Your Orders",
+          orders: orders,
+          isLoggedIn: value,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
+    });
+  }
 };

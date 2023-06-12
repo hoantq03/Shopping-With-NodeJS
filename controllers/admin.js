@@ -3,12 +3,20 @@ const Product = require("../models/product");
 // get add product form
 exports.getAddProduct = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  res.render("admin/edit-product", {
-    pageTitle: "Add Product",
-    path: "/admin/add-product",
-    editing: false,
-    isLoggedIn: value,
-  });
+  if (value) {
+    res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      isLoggedIn: value,
+    });
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
+    });
+  }
 };
 
 // post data from product form
@@ -41,28 +49,36 @@ exports.postAddProduct = (req, res, next) => {
 exports.getEditProduct = (req, res, next) => {
   //check edit mode is true by params of url
   const value = req.session.isLoggedIn;
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect("/");
-  }
-  //get productId from params
-  const prodId = req.params.productId;
+  if (value) {
+    const editMode = req.query.edit;
+    if (!editMode) {
+      return res.redirect("/");
+    }
+    //get productId from params
+    const prodId = req.params.productId;
 
-  //findById method come from Mongoose
-  Product.findById(prodId)
-    .then((product) => {
-      if (!product) {
-        return res.redirect("/");
-      }
-      res.render("admin/edit-product", {
-        pageTitle: "Edit Product",
-        path: "/admin/edit-product",
-        editing: editMode,
-        product: product,
-        isLoggedIn: value,
-      });
-    })
-    .catch((err) => console.log(err));
+    //findById method come from Mongoose
+    Product.findById(prodId)
+      .then((product) => {
+        if (!product) {
+          return res.redirect("/");
+        }
+        res.render("admin/edit-product", {
+          pageTitle: "Edit Product",
+          path: "/admin/edit-product",
+          editing: editMode,
+          product: product,
+          isLoggedIn: value,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
+    });
+  }
 };
 
 // post new updated data
@@ -91,17 +107,24 @@ exports.postEditProduct = (req, res, next) => {
 // get all products view
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
-
-  Product.find()
-    .then((products) => {
-      res.render("admin/products", {
-        prods: products,
-        pageTitle: "Admin Products",
-        path: "/admin/products",
-        isLoggedIn: value,
-      });
-    })
-    .catch((err) => console.log(err));
+  if (value) {
+    Product.find()
+      .then((products) => {
+        res.render("admin/products", {
+          prods: products,
+          pageTitle: "Admin Products",
+          path: "/admin/products",
+          isLoggedIn: value,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.render("404", {
+      pageTitle: "Admin Products",
+      path: "/admin/products",
+      isLoggedIn: value,
+    });
+  }
 };
 
 //delete product in database

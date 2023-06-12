@@ -50,31 +50,12 @@ app.use(errorController.get404);
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
-    User.findById("6483474c6e79ccaff994fe2b")
-      .then((existingUser) => {
-        if (!existingUser) {
-          const user = new User({
-            name: "Tran Quoc Hoan",
-            email: "Thaihoang03082003@gmail.com",
-            cart: {
-              items: [],
-            },
-          });
-          console.log("created");
-          return user.save();
-        } else {
-          console.log("existed");
-          return existingUser;
-        }
-      })
-      .then((user) => {
-        app.listen(3000, () => {
-          console.log("server is running on port 3000");
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    console.log("connected");
+  })
+  .then((user) => {
+    app.listen(3000, () => {
+      console.log("server is running on port 3000");
+    });
   })
   .catch((error) => {
     console.log(error);
