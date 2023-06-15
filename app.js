@@ -42,7 +42,6 @@ app.use(
     store: store,
   })
 );
-app.use(csurfProtection);
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
