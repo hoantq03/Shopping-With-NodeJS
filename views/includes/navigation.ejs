@@ -29,7 +29,9 @@
         </ul>
         <ul class="main-header__item-list">
             <li class="main-header__item">
-                <a class="<%= path === '/logout' ? 'active' : '' %>" href="/logout">Log out</a>
+                <form action="/logout" method="POST">
+                    <button type="submit">Logout</button>
+                </form>
             </li>
         </ul>
         <% } else{%>

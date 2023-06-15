@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+
 //require user mongoose
 const User = require("./models/user");
 const errorController = require("./controllers/error");
@@ -17,6 +18,8 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions",
 });
+
+// here we got a csurf protection
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -39,7 +42,7 @@ app.use(
     store: store,
   })
 );
-
+app.use(csurfProtection);
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
