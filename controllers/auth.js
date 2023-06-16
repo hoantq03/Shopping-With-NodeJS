@@ -55,10 +55,14 @@ exports.postLogout = (req, res) => {
 };
 
 exports.getSignUp = (req, res) => {
+  let message = req.flash("error");
+  if (message.length > 0) message = message[0];
+  else message = null;
   res.render("auth/signup", {
     pageTitle: "Sign Up",
     path: "/auth/signup",
     isLoggedIn: false,
+    errorMessage: message,
   });
 };
 
@@ -71,7 +75,11 @@ exports.postSignUp = (req, res) => {
   User.findOne({ email: email })
     .then((user) => {
       if (user) {
-        return res.redirect("/login");
+        req.flash(
+          "error",
+          "Email is existed, please pick another one or login"
+        );
+        return res.redirect("/signup");
       }
       if (password === confirmPassword) {
         bcrypt.hash(password, 12).then((hashPassword) => {
@@ -81,14 +89,15 @@ exports.postSignUp = (req, res) => {
             password: hashPassword,
             cart: { items: [] },
           });
-          return user.save();
+          return user.save().then((result) => {
+            res.redirect("/login");
+          });
         });
       } else {
+        req.flash("error", "Please enter correct 'confirm password '");
+        console.log("confirm password incorrect");
         return res.redirect("/signup");
       }
-    })
-    .then((result) => {
-      res.redirect("/login");
     })
     .catch((error) => {
       console.log(error);
