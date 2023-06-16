@@ -206,10 +206,19 @@ form {
   background: white;
   border-radius: 3px;
   cursor: pointer;
+  margin: 15px 0px;
+}
+a {
+  color: #00695c;
+  width: 35%;
+}
+a:hover {
+  color: #fff;
 }
 
 .btn:hover,
-.btn:active {
+.btn:active,
+.btn-forget:hover {
   background-color: #00695c;
   color: white;
 }

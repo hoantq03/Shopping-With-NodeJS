@@ -1,7 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const sendGridTransport = require("nodemailer-sendgrid-transport");
+const crypto = require("crypto");
+const { DATE } = require("sequelize");
 
 const transporter = nodemailer.createTransport({
   host: "Smtp.gmail.com",
@@ -122,5 +123,98 @@ exports.postSignUp = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+    });
+};
+
+exports.getForgotPassword = (req, res) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/forgotPassword", {
+    path: "/auth/forgot-password",
+    pageTitle: "Reset Password",
+    isLoggedIn: false,
+    errorMessage: message,
+  });
+};
+
+exports.postForgotPassword = (req, res) => {
+  crypto.randomBytes(32, (error, buffer) => {
+    if (error) {
+      return res.redirect("/forgot-password");
+    }
+    const token = buffer.toString("hex");
+    const tokenExpired = Date.now() + 3600000;
+
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        if (!user) {
+          req.flash("error", "No account with that Email !");
+          return res.redirect("/forgot-password");
+        }
+        user.resetToken = token;
+        user.resetExpiredTime = tokenExpired;
+        return user.save().then((result) => {
+          // send mail
+          console.log("sending email");
+          return transporter.sendMail({
+            from: "hoantran03082003@gmail.com",
+            to: req.body.email,
+            subject: "Reset password",
+            html: `<p>You request to reset password</p>
+            <p>please click to link below to reset your password</p>
+            <a href="http://localhost:3000/reset/${token}">http://localhost:3000/reset/${token}<a/>
+            `,
+          });
+        });
+      })
+      .then((result) => {
+        console.log("mail is sent");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  });
+};
+
+exports.getReset = (req, res) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset Password",
+    isLoggedIn: false,
+    errorMessage: message,
+    resetToken: req.params.resetPasswordToken,
+  });
+};
+
+exports.postReset = (req, res) => {
+  const resetToken = req.body.resetToken;
+  const newPassword = req.body.newPassword;
+  const confirmPassword = req.body.confirmPassword;
+
+  if (newPassword !== confirmPassword) {
+    req.flash("error", "Password Confirm is not correct ! ");
+    console.log(`password incorrect`);
+    return res.redirect(`/reset/${resetToken}`);
+  }
+  User.findOne({ resetToken: resetToken })
+    .then((user) => {
+      user.password = req.body.newPassword;
+      return user.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+    })
+    .catch((error) => {
+      console.log(error);
     });
 };
