@@ -54,6 +54,9 @@ exports.getEditProduct = (req, res, next) => {
       if (!product) {
         return res.redirect("/");
       }
+      if (product.userId.toString() !== req.session.user._id.toString()) {
+        return res.redirect("/admin/products");
+      }
       res.render("admin/edit-product", {
         pageTitle: "Edit Product",
         path: "/admin/edit-product",
@@ -76,6 +79,12 @@ exports.postEditProduct = (req, res, next) => {
   // find product and update
   Product.findById(prodId)
     .then((product) => {
+      if (!editMode) {
+        return res.redirect("/");
+      }
+      if (product.userId.toString() !== req.session.user._id.toString()) {
+        return res.redirect("/admin/products");
+      }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
@@ -91,7 +100,7 @@ exports.postEditProduct = (req, res, next) => {
 // get all products view
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  Product.find({ userId: req.session.userId })
+  Product.find({ userId: req.session.user._id })
     .then((products) => {
       console.log(products);
       res.render("admin/products", {
@@ -107,7 +116,7 @@ exports.getProducts = (req, res, next) => {
 //delete product in database
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByIdAndRemove(prodId)
+  Product.deleteOne({ _id: prodId, userId: req.session.user._id })
     .then((result) => {
       res.redirect("/admin/products");
     })
