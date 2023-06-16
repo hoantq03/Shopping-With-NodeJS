@@ -159,7 +159,6 @@ exports.postForgotPassword = (req, res) => {
         user.resetExpiredTime = tokenExpired;
         return user.save().then((result) => {
           // send mail
-          console.log("sending email");
           return transporter.sendMail({
             from: "hoantran03082003@gmail.com",
             to: req.body.email,
@@ -171,9 +170,7 @@ exports.postForgotPassword = (req, res) => {
           });
         });
       })
-      .then((result) => {
-        console.log("mail is sent");
-      })
+      .then((result) => {})
       .catch((error) => {
         console.log(error);
       });
@@ -203,21 +200,24 @@ exports.postReset = (req, res) => {
   let userOld;
   if (newPassword !== confirmPassword) {
     req.flash("error", "Password Confirm is not correct ! ");
-    console.log(`password incorrect`);
     return res.redirect(`/reset/${resetToken}`);
   }
   User.findOne({ resetToken: resetToken })
     .then((user) => {
+      if (user.resetExpiredTime <= Date.now()) {
+        req.flash("error", "Reset Token Was Expired ! ");
+        return res.redirect("/login");
+      }
       userOld = user;
-      return bcrypt.hash(req.body.newPassword, 12);
-    })
-    .then((hashPass) => {
-      console.log(hashPass);
-      userOld.password = hashPass;
-      return userOld.save();
-    })
-    .then((result) => {
-      res.redirect("/login");
+      bcrypt
+        .hash(req.body.newPassword, 12)
+        .then((hashPass) => {
+          userOld.password = hashPass;
+          return userOld.save();
+        })
+        .then((result) => {
+          res.redirect("/login");
+        });
     })
     .catch((error) => {
       console.log(error);

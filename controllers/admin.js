@@ -102,7 +102,6 @@ exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
   Product.find({ userId: req.session.user._id })
     .then((products) => {
-      console.log(products);
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
@@ -112,7 +111,6 @@ exports.getProducts = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
-
 //delete product in database
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;

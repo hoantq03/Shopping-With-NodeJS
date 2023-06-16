@@ -5,7 +5,6 @@ const csurf = require("csurf");
 //get all products
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  console.log(value);
   Product.find()
     .then((products) => {
       res.render("shop/product-list", {
@@ -65,7 +64,6 @@ exports.getCart = (req, res, next) => {
     .populate("cart.items.productId")
     .then((user) => {
       const products = user.cart.items;
-      console.log(products);
       res.render("shop/cart", {
         path: "/cart",
         pageTitle: "Your Cart",
@@ -101,7 +99,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // get id from EJS
   const prodId = req.body.productId;
   req.session.user = new User().init(req.session.user);
-
   req.session.user
     .removeFromCart(prodId)
     .then((result) => {
@@ -141,9 +138,7 @@ exports.postOrder = (req, res, next) => {
       return order.save();
     })
     .then(() => {
-      req.session.user.clearCart().then((result) => {
-        console.log(result);
-      });
+      req.session.user.clearCart().then((result) => {});
     })
     .then((result) => {
       res.redirect("/orders");
@@ -158,7 +153,6 @@ exports.getOrders = (req, res, next) => {
   Order.find()
     .populate("products.product.productId")
     .then((orders) => {
-      console.log(orders);
       res.render("shop/orders", {
         path: "/orders",
         pageTitle: "Your Orders",
