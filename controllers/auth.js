@@ -1,5 +1,17 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const sendGridTransport = require("nodemailer-sendgrid-transport");
+
+const transporter = nodemailer.createTransport({
+  host: "Smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "hoantran03082003@gmail.com",
+    pass: "olxgvcxzfsnossrv",
+  },
+});
 // authentication login
 exports.getLogin = (req, res) => {
   let message = req.flash("error");
@@ -67,39 +79,48 @@ exports.getSignUp = (req, res) => {
 };
 
 exports.postSignUp = (req, res) => {
+  const name = req.body.userName;
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
-  const name = req.body.userName;
-
   User.findOne({ email: email })
-    .then((user) => {
-      if (user) {
+    .then((userDoc) => {
+      if (userDoc) {
         req.flash(
           "error",
-          "Email is existed, please pick another one or login"
+          "E-Mail exists already, please pick a different one."
         );
         return res.redirect("/signup");
       }
-      if (password === confirmPassword) {
-        bcrypt.hash(password, 12).then((hashPassword) => {
-          user = new User({
-            name: name,
-            email: email,
-            password: hashPassword,
-            cart: { items: [] },
-          });
-          return user.save().then((result) => {
-            res.redirect("/login");
-          });
-        });
-      } else {
-        req.flash("error", "Please enter correct 'confirm password '");
-        console.log("confirm password incorrect");
+      if (password !== confirmPassword) {
+        req.flash("error", "Confirm password incorrect");
         return res.redirect("/signup");
       }
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            name: name,
+            email: email,
+            password: hashedPassword,
+            cart: { items: [] },
+          });
+          return user.save();
+        })
+        .then((result) => {
+          res.redirect("/login");
+          return transporter.sendMail({
+            from: "hoantran03082003@gmail.com",
+            to: email,
+            subject: "Signup succeeded!",
+            html: "<h1>You successfully signed up!</h1>",
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      console.log(err);
     });
 };
