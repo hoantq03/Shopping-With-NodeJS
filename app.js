@@ -42,6 +42,7 @@ app.use(
     store: store,
   })
 );
+
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
