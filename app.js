@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const flash = require("connect-flash");
 
 //require user mongoose
 const User = require("./models/user");
@@ -14,6 +15,7 @@ const MONGODB_URI =
   "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs";
 
 const app = express();
+
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions",
@@ -42,6 +44,8 @@ app.use(
     store: store,
   })
 );
+
+app.use(flash());
 
 //use this two routes
 app.use("/admin", adminRoutes);

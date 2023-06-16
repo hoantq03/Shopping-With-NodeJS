@@ -1,0 +1,9 @@
+.error__login--message {
+  margin: 0 auto;
+  border: 2px red solid;
+  color: red;
+  width: 20%;
+  border-radius: 4px;
+  text-align: center;
+  padding: 4px 2px;
+}

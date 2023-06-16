@@ -2,10 +2,17 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 // authentication login
 exports.getLogin = (req, res) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
     isLoggedIn: false,
+    errorMessage: message,
   });
 };
 
@@ -14,31 +21,30 @@ exports.postLogin = (req, res) => {
   const password = req.body.password;
   User.findOne({
     email: email,
-  })
-    .then((user) => {
-      if (user) {
-        bcrypt.compare(password, user.password).then((result) => {
-          if (result) {
-            req.session.isLoggedIn = true;
-            req.session.user = user;
-            console.log("logging is accepted");
-            req.session.save((error) => {
-              console.log(error);
-              res.redirect("/");
-            });
-          } else {
-            console.log("logging is rejected");
-            res.redirect("/login");
-          }
-        });
-      } else {
-        console.log("logging is rejected");
+  }).then((user) => {
+    if (!user) {
+      req.flash("error", "Invalid email or password.");
+      return res.redirect("/login");
+    }
+    bcrypt
+      .compare(password, user.password)
+      .then((matchPassword) => {
+        if (matchPassword) {
+          req.session.isLoggedIn = true;
+          req.session.user = user;
+          return req.session.save((error) => {
+            console.log(error);
+            res.redirect("/");
+          });
+        }
+        req.flash("error", "Invalid email or password.");
         res.redirect("/login");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+        res.redirect("/login");
+      });
+  });
 };
 
 exports.postLogout = (req, res) => {
