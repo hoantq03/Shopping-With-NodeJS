@@ -200,7 +200,7 @@ exports.postReset = (req, res) => {
   const resetToken = req.body.resetToken;
   const newPassword = req.body.newPassword;
   const confirmPassword = req.body.confirmPassword;
-
+  let userOld;
   if (newPassword !== confirmPassword) {
     req.flash("error", "Password Confirm is not correct ! ");
     console.log(`password incorrect`);
@@ -208,8 +208,13 @@ exports.postReset = (req, res) => {
   }
   User.findOne({ resetToken: resetToken })
     .then((user) => {
-      user.password = req.body.newPassword;
-      return user.save();
+      userOld = user;
+      return bcrypt.hash(req.body.newPassword, 12);
+    })
+    .then((hashPass) => {
+      console.log(hashPass);
+      userOld.password = hashPass;
+      return userOld.save();
     })
     .then((result) => {
       res.redirect("/login");

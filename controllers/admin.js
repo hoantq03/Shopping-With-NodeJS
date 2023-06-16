@@ -91,8 +91,9 @@ exports.postEditProduct = (req, res, next) => {
 // get all products view
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
-  Product.find()
+  Product.find({ userId: req.session.userId })
     .then((products) => {
+      console.log(products);
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
