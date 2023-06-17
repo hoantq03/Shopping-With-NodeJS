@@ -27,14 +27,15 @@ exports.getLogin = (req, res) => {
     isLoggedIn: false,
     errorMessage: message,
     email: "",
+    error: [],
   });
 };
 
 exports.postLogin = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const errorValidation = validationResult(req);
 
+  const errorValidation = validationResult(req);
   if (!errorValidation.isEmpty()) {
     const message = `${validationResult(req).errors[0].msg}    
     ${validationResult(req).errors[0].path}`;
@@ -44,11 +45,23 @@ exports.postLogin = (req, res) => {
       isLoggedIn: false,
       errorMessage: message,
       email: email,
+      error: errorValidation.array(),
     });
   }
+
   User.findOne({
     email: email,
   }).then((user) => {
+    if (!user) {
+      return res.status(422).render("auth/login", {
+        path: "/login",
+        pageTitle: "Login",
+        errorMessage: "Invalid email or password.",
+        isLoggedIn: false,
+        email: email,
+        error: errorValidation.array(),
+      });
+    }
     bcrypt
       .compare(password, user.password)
       .then((matchPassword) => {
@@ -67,6 +80,7 @@ exports.postLogin = (req, res) => {
           isLoggedIn: false,
           errorMessage: message,
           email: email,
+          error: errorValidation.array(),
         });
       })
       .catch((error) => {
@@ -113,6 +127,7 @@ exports.postSignUp = (req, res) => {
       password: password,
       name: name,
       confirmPassword: confirmPassword,
+      error: true,
     });
   }
 

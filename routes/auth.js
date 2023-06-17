@@ -8,21 +8,20 @@ router.get("/login", authController.getLogin);
 
 router.post(
   "/login",
-  body("email")
-    .isEmail()
-    .custom((value, { req }) => {
-      return User.findOne({ email: value }).then((userDoc) => {
-        if (!userDoc) {
-          return Promise.reject("E-mail incorrect");
-        }
-      });
-    }),
-  body("password")
-    .isLength({ min: 5, max: 16 })
-    .withMessage(
-      "Please enter password width min length : 5 character, max length : 16 character"
-    )
-    .isAlphanumeric(),
+  [
+    body("email")
+      .isEmail()
+      .withMessage("Please enter valid Email")
+      .normalizeEmail()
+      .trim(),
+    body("password")
+      .isLength({ min: 5, max: 16 })
+      .withMessage(
+        "Please enter password width min length : 5 character, max length : 16 character"
+      )
+      .isAlphanumeric()
+      .trim(),
+  ],
   authController.postLogin
 );
 
@@ -35,6 +34,8 @@ router.post(
   [
     check("email")
       .isEmail()
+      .withMessage("Please enter the valid Email")
+      .normalizeEmail()
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((userDoc) => {
           if (userDoc) {
@@ -43,18 +44,22 @@ router.post(
             );
           }
         });
-      }),
+      })
+      .trim(),
     body("password")
       .isLength({ min: 5, max: 16 })
       .withMessage(
         "Please enter password width min length : 5 character, max length : 16 character"
       )
-      .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Password must match ");
-      }
-    }),
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Password must match ");
+        }
+      })
+      .trim(),
   ],
   authController.postSignUp
 );

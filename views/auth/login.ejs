@@ -15,11 +15,13 @@
                         <form class="login-form-login" action="/login" method="POST">
                             <div class="form-control-login">
                                 <label for="email">E-Mail</label>
-                                <input type="email" name="email" id="email" value="<%= email ? email : '' %>">
+                                <input class="<%= error.find((e) => e.path === 'email') ? 'invalid' : ''  %>"
+                                    type="email" name="email" id="email" value="<%= email ? email : '' %>">
                             </div>
                             <div class="form-control-login">
                                 <label for="password">Password</label>
-                                <input type="password" name="password" id="password">
+                                <input class="<%= error.find((e) => e.path === 'password') ? 'invalid' : ''  %>"
+                                    type="password" name="password" id="password">
                             </div>
                             <button class="btn-login btn" type="submit">Login</button>
                             <a class="btn-forget btn-login btn" href="/forgot-password">Forgot
