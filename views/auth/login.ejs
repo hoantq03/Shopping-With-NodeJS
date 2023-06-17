@@ -15,7 +15,7 @@
                         <form class="login-form-login" action="/login" method="POST">
                             <div class="form-control-login">
                                 <label for="email">E-Mail</label>
-                                <input type="email" name="email" id="email">
+                                <input type="email" name="email" id="email" value="<%= email ? email : '' %>">
                             </div>
                             <div class="form-control-login">
                                 <label for="password">Password</label>

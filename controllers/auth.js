@@ -26,6 +26,7 @@ exports.getLogin = (req, res) => {
     pageTitle: "Login",
     isLoggedIn: false,
     errorMessage: message,
+    email: "",
   });
 };
 
@@ -42,9 +43,9 @@ exports.postLogin = (req, res) => {
       path: "/auth/login",
       isLoggedIn: false,
       errorMessage: message,
+      email: email,
     });
   }
-
   User.findOne({
     email: email,
   }).then((user) => {
@@ -59,8 +60,14 @@ exports.postLogin = (req, res) => {
             res.redirect("/");
           });
         }
-        req.flash("error", "Wrong email or password.");
-        res.redirect("/login");
+        const message = "Wrong email or password.";
+        return res.status(422).render("auth/login", {
+          pageTitle: "Login",
+          path: "/auth/login",
+          isLoggedIn: false,
+          errorMessage: message,
+          email: email,
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -72,7 +79,7 @@ exports.postLogin = (req, res) => {
 exports.postLogout = (req, res) => {
   req.session.user = new User().init(req.session.user);
   req.session.destroy((error) => {
-    res.redirect("/");
+    res.redirect("/login");
   });
 };
 
@@ -93,7 +100,7 @@ exports.postSignUp = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const errorValidation = validationResult(req);
-
+  const confirmPassword = req.body.confirmPassword;
   if (!errorValidation.isEmpty()) {
     const message = `${validationResult(req).errors[0].msg}    
     ${validationResult(req).errors[0].path}`;
@@ -102,6 +109,10 @@ exports.postSignUp = (req, res) => {
       path: "/auth/signup",
       isLoggedIn: false,
       errorMessage: message,
+      email: email,
+      password: password,
+      name: name,
+      confirmPassword: confirmPassword,
     });
   }
 

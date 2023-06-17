@@ -14,19 +14,21 @@
                         <form class="login-form login-form-login" action="/signup" method="POST" novalidate>
                             <div class="form-control form-control-login">
                                 <label for="userName">User Name</label>
-                                <input type="text" name="userName" id="userName">
+                                <input type="text" name="userName" id="userName" value="<%= name ? name : ''%>">
                             </div>
                             <div class="form-control form-control-login">
                                 <label for="email">E-Mail</label>
-                                <input type="email" name="email" id="email">
+                                <input type="email" name="email" id="email" value="<%= email ? email : ''%>">
                             </div>
                             <div class="form-control form-control-login">
                                 <label for="password">Password</label>
-                                <input type="password" name="password" id="password">
+                                <input type="password" name="password" id="password"
+                                    value="<%= password ? password : ''%>">
                             </div>
                             <div class="form-control form-control-login">
                                 <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" name="confirmPassword" id="confirmPassword">
+                                <input type="password" name="confirmPassword" id="confirmPassword"
+                                    value="<%= confirmPassword ? confirmPassword : ''%>">
                             </div>
                             <button class="btn btn-login" type="submit">Signup</button>
                         </form>
