@@ -1,7 +1,9 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
-const csurf = require("csurf");
+const ServerDown = require("../errors/ServerDown");
+require("express-async-errors");
+
 //get all products
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
@@ -34,7 +36,7 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      throw new ServerDown("Can not save Product to database");
+      throw new ServerDown("can not find this product id");
     });
 };
 

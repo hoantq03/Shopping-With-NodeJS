@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const { validationResult } = require("express-validator");
+require("express-async-errors");
 
 const transporter = nodemailer.createTransport({
   host: "Smtp.gmail.com",

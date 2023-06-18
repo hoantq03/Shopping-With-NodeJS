@@ -3,6 +3,7 @@ const Product = require("../models/product");
 const { validationResult } = require("express-validator");
 const ValidationError = require("../errors/ValidateError");
 const ServerDown = require("../errors/ServerDown");
+require("express-async-errors");
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
@@ -14,6 +15,7 @@ exports.getAddProduct = (req, res, next) => {
     isLoggedIn: value,
     hasError: false,
     errorMessage: null,
+    errors: [],
   });
 };
 

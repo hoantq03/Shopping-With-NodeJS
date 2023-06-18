@@ -3,6 +3,7 @@ const express = require("express");
 const shopController = require("../controllers/shop");
 const router = express.Router();
 const isAuth = require("../middleware/is-auth");
+require("express-async-errors");
 
 router.get("/", shopController.getIndex);
 

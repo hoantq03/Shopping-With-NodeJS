@@ -3,6 +3,7 @@ const adminController = require("../controllers/admin");
 const router = express.Router();
 const isAuth = require("../middleware/is-auth");
 const { body } = require("express-validator");
+require("express-async-errors");
 
 // /admin/add-product => GET
 router.get("/add-product", isAuth, adminController.getAddProduct);
