@@ -1,5 +1,8 @@
+const { mongoose } = require("mongoose");
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
+const ValidationError = require("../errors/ValidateError");
+const ServerDown = require("../errors/ServerDown");
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
@@ -24,29 +27,11 @@ exports.postAddProduct = (req, res, next) => {
 
   //get error from routes file whether existed
   const errorValidation = validationResult(req);
-  console.log(errorValidation.array());
+
+  // exist errors
   if (!errorValidation.isEmpty()) {
-    //if exist any error, rerender add product form with red highlight input
-    return res.status(422).render("admin/edit-product", {
-      path: "/admin/add-product",
-      pageTitle: "Add Product",
-      isLoggedIn: true,
-      //error includes objects
-      errors: errorValidation.array(),
-      // editing to check edit or add products
-      editing: false,
-      // has Error to add CSS red highlight input
-      hasError: true,
-      // data of products to keeping data in input when rerender
-      product: {
-        title: title,
-        imageUrl: imageUrl,
-        price: price,
-        description: description,
-      },
-      //don't have error message in routes
-      errorMessage: null,
-    });
+    console.log(errorValidation.array());
+    throw new ValidationError(errorValidation.array());
   }
 
   //// whether don't have any error, create new product with userId is current user login
@@ -67,7 +52,7 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -101,7 +86,9 @@ exports.getEditProduct = (req, res, next) => {
         errorMessage: "invalid value",
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Product can not found");
+    });
 };
 
 // post new updated data
@@ -142,7 +129,6 @@ exports.postEditProduct = (req, res, next) => {
   Product.findById(prodId)
     .then((product) => {
       if (product.userId.toString() !== req.session.user._id.toString()) {
-        console.log(`user not`);
         return res.redirect("/admin/products");
       }
       product.title = updatedTitle;
@@ -154,8 +140,9 @@ exports.postEditProduct = (req, res, next) => {
         res.redirect("/admin/products");
       });
     })
-
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
 
 // get all products view
@@ -171,7 +158,9 @@ exports.getProducts = (req, res, next) => {
         errorMessage: null,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
 //delete product in database
 exports.postDeleteProduct = (req, res, next) => {
@@ -180,5 +169,7 @@ exports.postDeleteProduct = (req, res, next) => {
     .then((result) => {
       res.redirect("/admin/products");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };

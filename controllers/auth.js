@@ -88,9 +88,10 @@ exports.postLogin = (req, res) => {
           password: password,
         });
       })
-      .catch((error) => {
-        console.log(error);
-        res.redirect("/login");
+      .catch((err) => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -156,7 +157,7 @@ exports.postSignUp = (req, res) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -205,8 +206,8 @@ exports.postForgotPassword = (req, res) => {
         });
       })
       .then((result) => {})
-      .catch((error) => {
-        console.log(error);
+      .catch((err) => {
+        throw new ServerDown("Can not save Product to database");
       });
   });
 };
@@ -253,7 +254,7 @@ exports.postReset = (req, res) => {
           res.redirect("/login");
         });
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
     });
 };

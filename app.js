@@ -1,14 +1,16 @@
 const path = require("path");
+const User = require("./models/user");
 
+require("express-async-errors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash");
+const errorHandler = require("./middleware/error-handler");
 
 //require user mongoose
-const User = require("./models/user");
 const errorController = require("./controllers/error");
 
 const MONGODB_URI =
@@ -30,6 +32,7 @@ app.set("views", "views");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
+const NotFoundError = require("./errors/notFoundError");
 
 // parser body
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,12 +51,30 @@ app.use(
 // flash to send message
 app.use(flash());
 
+// check app is logged in ?
+// whether is logged in, just set user info in the session to the request
+// if didn't login yet, find the user in the database and set to the session and request
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then((user) => {
+      if (!user) return next();
+      req.user = user;
+      next();
+    })
+    .catch((error) => {
+      throw new NotFoundError("User not found");
+    });
+});
+
 //use this two routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-app.use(errorController.get404);
+app.use(errorHandler);
 
 mongoose
   .connect(MONGODB_URI)
@@ -66,5 +87,5 @@ mongoose
     });
   })
   .catch((error) => {
-    console.log(error);
+    throw new Error(error);
   });

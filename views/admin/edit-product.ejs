@@ -15,24 +15,25 @@
                             method="POST" ">
                     <div class=" form-control">
                             <label for="title">Title</label>
-                            <input class="errors.find(e => e.path === 'title') ? 'error' : ''" type="text" name="title"
-                                id="title" value="<% if (editing || hasError) { %><%= product.title %><% } %>">
+                            <input class="<%= errors.find(e => e.path === 'title') ? 'error' : ''%>" type="text"
+                                name="title" id="title"
+                                value="<% if (editing || hasError) { %><%= product.title %><% } %>">
                             </div>
                             <div class="form-control">
                                 <label for="imageUrl">Image URL</label>
-                                <input class="errors.find(e => e.path === 'imageUrl') ? 'error' : ''" type="text"
+                                <input class="<%= errors.find(e => e.path === 'imageUrl') ? 'error' : ''%>" type="text"
                                     name="imageUrl" id="imageUrl"
                                     value="<% if (editing || hasError) { %><%= product.imageUrl %><% } %>">
                             </div>
                             <div class="form-control">
                                 <label for="price">Price</label>
-                                <input class="errors.find(e => e.path === 'price') ? 'error' : ''" type="number"
+                                <input class="<%= errors.find(e => e.path === 'price') ? 'error' : '' %>" type="number"
                                     name="price" id="price" step="0.01"
                                     value="<% if (editing || hasError) { %><%= product.price %><% } %>">
                             </div>
                             <div class="form-control">
                                 <label for="description">Description</label>
-                                <textarea class="errors.find(e => e.path === 'description') ? 'error' : ''"
+                                <textarea class="<%= errors.find(e => e.path === 'description') ? 'error' : '' %>"
                                     name="description" id="description"
                                     rows="5"><% if (editing || hasError) { %><%= product.description %><% } %></textarea>
                             </div>

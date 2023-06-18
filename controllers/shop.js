@@ -15,7 +15,7 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -33,7 +33,9 @@ exports.getProduct = (req, res, next) => {
         isLoggedIn: value,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
 
 // get all products at home pages
@@ -50,7 +52,7 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -71,8 +73,8 @@ exports.getCart = (req, res, next) => {
         isLoggedIn: value,
       });
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -89,8 +91,8 @@ exports.postCart = (req, res, next) => {
     .then((result) => {
       res.redirect("/cart");
     })
-    .catch((error) => {
-      console.log(error);
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
     });
 };
 
@@ -104,7 +106,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .then((result) => {
       res.redirect("/cart");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
 
 // send date of product we want to order
@@ -143,7 +147,9 @@ exports.postOrder = (req, res, next) => {
     .then((result) => {
       res.redirect("/orders");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
 
 // get view of orders information
@@ -160,5 +166,7 @@ exports.getOrders = (req, res, next) => {
         isLoggedIn: value,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      throw new ServerDown("Can not save Product to database");
+    });
 };
