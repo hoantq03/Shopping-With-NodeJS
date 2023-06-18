@@ -16,13 +16,13 @@ const MONGODB_URI =
 
 const app = express();
 
+//store session in database
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions",
 });
 
-// here we got a csurf protection
-
+// set view EJS
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -31,11 +31,11 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
+// parser body
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // use session
-
 app.use(
   session({
     secret: "my secret",
@@ -45,6 +45,7 @@ app.use(
   })
 );
 
+// flash to send message
 app.use(flash());
 
 //use this two routes

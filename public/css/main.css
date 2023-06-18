@@ -243,3 +243,7 @@ a:hover {
     display: none;
   }
 }
+
+.error {
+  border: 2px red solid;
+}

@@ -27,7 +27,8 @@ exports.getLogin = (req, res) => {
     isLoggedIn: false,
     errorMessage: message,
     email: "",
-    error: [],
+    errors: [],
+    password: "",
   });
 };
 
@@ -35,37 +36,38 @@ exports.postLogin = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
+  // all errors in Routes folder
   const errorValidation = validationResult(req);
+
+  // whether exist any errors
   if (!errorValidation.isEmpty()) {
+    // error message
     const message = `${validationResult(req).errors[0].msg}    
     ${validationResult(req).errors[0].path}`;
+    // rerender with error
     return res.status(422).render("auth/login", {
       pageTitle: "Login",
       path: "/auth/login",
       isLoggedIn: false,
       errorMessage: message,
       email: email,
-      error: errorValidation.array(),
+      password: password,
+      errors: validationResult(req).array(),
     });
   }
 
+  //find user with email in the request of form
   User.findOne({
     email: email,
   }).then((user) => {
-    if (!user) {
-      return res.status(422).render("auth/login", {
-        path: "/login",
-        pageTitle: "Login",
-        errorMessage: "Invalid email or password.",
-        isLoggedIn: false,
-        email: email,
-        error: errorValidation.array(),
-      });
-    }
+    // we don't need to check user exist because we have checked in Routes
+
+    // hash the password and compare with password in the database
     bcrypt
       .compare(password, user.password)
       .then((matchPassword) => {
         if (matchPassword) {
+          //if password matched, save the session in the request and save session to the database
           req.session.isLoggedIn = true;
           req.session.user = user;
           return req.session.save((error) => {
@@ -73,6 +75,8 @@ exports.postLogin = (req, res) => {
             res.redirect("/");
           });
         }
+
+        // whether we need to rerender with error message
         const message = "Wrong email or password.";
         return res.status(422).render("auth/login", {
           pageTitle: "Login",
@@ -80,7 +84,8 @@ exports.postLogin = (req, res) => {
           isLoggedIn: false,
           errorMessage: message,
           email: email,
-          error: errorValidation.array(),
+          errors: [],
+          password: password,
         });
       })
       .catch((error) => {
@@ -127,7 +132,6 @@ exports.postSignUp = (req, res) => {
       password: password,
       name: name,
       confirmPassword: confirmPassword,
-      error: true,
     });
   }
 

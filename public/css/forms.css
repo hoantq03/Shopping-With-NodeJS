@@ -37,6 +37,6 @@
   outline-color: #00695c;
 }
 
-.invalid {
-  border: 2px red solid;
+.error {
+  border: 2px solid red;
 }
