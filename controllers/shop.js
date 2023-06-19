@@ -6,7 +6,8 @@ const NotFoundError = require("../errors/notFoundError");
 require("express-async-errors");
 const fs = require("fs");
 const path = require("path");
-
+const PDFDocument = require("pdfkit");
+const product = require("../models/product");
 //get all products
 exports.getProducts = (req, res, next) => {
   const value = req.session.isLoggedIn;
@@ -146,11 +147,9 @@ exports.postOrder = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
-    console.log(req.user._id);
     const orders = await Order.find({
       "user.userId": req.user._id,
     }).populate("products.product.productId");
-    console.log(orders);
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
@@ -167,22 +166,67 @@ exports.getInvoice = async (req, res) => {
     const orderId = req.params.orderId;
     const invoiceName = "invoice-" + orderId + ".pdf";
     const invoicePath = path.join("data", "invoices", invoiceName);
+
+    const pdfDoc = new PDFDocument();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      'inline; filename="' + invoiceName + '"'
+    );
+
+    const orders = await Order.find({ _id: orderId }).populate(
+      "products.product.productId"
+    );
+    pdfDoc.pipe(fs.createWriteStream(invoicePath));
+    pdfDoc.pipe(res);
+
+    console.log(orders[0]);
+
+    orders.forEach((order) => {
+      pdfDoc.text(`INVOICE ORDERS ( ID : ${order._id} ) `);
+      pdfDoc.text(
+        "============================================================="
+      );
+
+      pdfDoc.text(
+        `This is invoice of ${order.user.name} ( user id : ${order.user.userId})`
+      );
+      pdfDoc.text(`List Products : `);
+      let total = 0;
+      order.products.forEach((product) => {
+        pdfDoc.text(
+          `Title  : ${product.product.title} | Price : ${
+            product.product.price
+          } | Quantity : ${product.quantity} | Total : ${
+            product.product.price * product.quantity
+          }`
+        );
+        total = total + product.product.price * product.quantity;
+      });
+
+      pdfDoc.text(" ");
+      pdfDoc.text(" ");
+      pdfDoc.text("Total : " + total);
+
+      pdfDoc.text(
+        "============================================================="
+      );
+      pdfDoc.text(" ");
+      pdfDoc.text(" ");
+      pdfDoc.text(" ");
+      pdfDoc.text(" ");
+    });
+
+    pdfDoc.end();
+
     const order = await Order.findById(orderId);
     if (!order) {
       throw new NotFoundError("Can not fount this order invoice");
     }
-    console.log(order.user.userId.toString());
-    console.log(req.user._id.toString());
     if (order.user.userId.toString() !== req.user._id.toString()) {
       throw new ServerDown("unauthorized");
     }
-    await fs.readFile(invoicePath, (error, data) => {
-      if (error) {
-        throw new ServerDown("can not read file");
-      }
-      res.setHeader("Content-Type", "application/pdf");
-      res.send(data);
-    });
   } catch (error) {
     throw new ServerDown("can not get order invoice");
   }

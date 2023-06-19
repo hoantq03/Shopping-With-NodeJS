@@ -29,6 +29,7 @@
     "nodemailer": "^6.9.3",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "nodemon": "^2.0.22",
+    "pdfkit": "^0.13.0",
     "pug": "^2.0.3",
     "sequelize": "^5.22.5",
     "tiny-csrf": "^1.1.3"
