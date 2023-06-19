@@ -1,6 +1,5 @@
 const path = require("path");
 const User = require("./models/user");
-
 require("express-async-errors");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -11,8 +10,6 @@ const flash = require("connect-flash");
 const errorHandler = require("./middleware/error-handler");
 
 //require user mongoose
-const errorController = require("./controllers/error");
-
 const MONGODB_URI =
   "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs";
 

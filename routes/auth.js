@@ -51,11 +51,12 @@ router.post(
         "Please enter password width min length : 5 character, max length : 16 character"
       )
       .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Password must match ");
-      }
-    }),
+    body("confirmPassword")
+      .isLength({ min: 5, max: 16 })
+      .withMessage(
+        "Please enter password width min length : 5 character, max length : 16 character"
+      )
+      .isAlphanumeric(),
   ],
   authController.postSignUp
 );

@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
     pass: "olxgvcxzfsnossrv",
   },
 });
+
 // authentication login
 exports.getLogin = (req, res) => {
   let message = req.flash("error");
@@ -33,7 +34,7 @@ exports.getLogin = (req, res) => {
   });
 };
 
-exports.postLogin = (req, res) => {
+exports.postLogin = async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -58,42 +59,33 @@ exports.postLogin = (req, res) => {
   }
 
   //find user with email in the request of form
-  User.findOne({
+  const user = await User.findOne({
     email: email,
-  }).then((user) => {
-    // we don't need to check user exist because we have checked in Routes
+  });
+  // we don't need to check user exist because we have checked in Routes
 
-    // hash the password and compare with password in the database
-    bcrypt
-      .compare(password, user.password)
-      .then((matchPassword) => {
-        if (matchPassword) {
-          //if password matched, save the session in the request and save session to the database
-          req.session.isLoggedIn = true;
-          req.session.user = user;
-          return req.session.save((error) => {
-            console.log(error);
-            res.redirect("/");
-          });
-        }
+  // hash the password and compare with password in the database
+  const passwordIsMatch = await bcrypt.compare(password, user.password);
 
-        // whether we need to rerender with error message
-        const message = "Wrong email or password.";
-        return res.status(422).render("auth/login", {
-          pageTitle: "Login",
-          path: "/auth/login",
-          isLoggedIn: false,
-          errorMessage: message,
-          email: email,
-          errors: [],
-          password: password,
-        });
-      })
-      .catch((err) => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
-      });
+  if (passwordIsMatch) {
+    //if password matched, save the session in the request and save session to the database
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+    return req.session.save((error) => {
+      res.redirect("/");
+    });
+  }
+
+  // whether we need to rerender with error message
+  const message = "Wrong email or password.";
+  return res.status(422).render("auth/login", {
+    pageTitle: "Login",
+    path: "/auth/login",
+    isLoggedIn: false,
+    errorMessage: message,
+    email: email,
+    errors: [],
+    password: password,
   });
 };
 
@@ -113,53 +105,68 @@ exports.getSignUp = (req, res) => {
     path: "/auth/signup",
     isLoggedIn: false,
     errorMessage: message,
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 };
 
-exports.postSignUp = (req, res) => {
-  const name = req.body.userName;
-  const email = req.body.email;
-  const password = req.body.password;
-  const errorValidation = validationResult(req);
-  const confirmPassword = req.body.confirmPassword;
-  if (!errorValidation.isEmpty()) {
-    const message = `${validationResult(req).errors[0].msg}    
-    ${validationResult(req).errors[0].path}`;
-    return res.status(422).render("auth/signup", {
-      pageTitle: "Sign Up",
-      path: "/auth/signup",
-      isLoggedIn: false,
-      errorMessage: message,
-      email: email,
-      password: password,
-      name: name,
-      confirmPassword: confirmPassword,
-    });
-  }
-
-  return bcrypt
-    .hash(password, 12)
-    .then((hashedPassword) => {
-      const user = new User({
-        name: name,
+exports.postSignUp = async (req, res) => {
+  try {
+    const name = req.body.userName;
+    const email = req.body.email;
+    const password = req.body.password;
+    const errorValidation = validationResult(req);
+    const confirmPassword = req.body.confirmPassword;
+    console.log(errorValidation);
+    if (password !== confirmPassword) {
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Sign Up",
+        path: "/auth/signup",
+        isLoggedIn: false,
+        errorMessage: "Password and confirm password not match",
         email: email,
-        password: hashedPassword,
-        cart: { items: [] },
+        password: password,
+        name: name,
+        confirmPassword: confirmPassword,
       });
-      return user.save();
-    })
-    .then((result) => {
-      res.redirect("/login");
-      return transporter.sendMail({
-        from: "hoantran03082003@gmail.com",
-        to: email,
-        subject: "Signup succeeded!",
-        html: "<h1>You successfully signed up!</h1>",
+    }
+    if (!errorValidation.isEmpty()) {
+      const message = `${validationResult(req).errors[0].msg}    
+    ${validationResult(req).errors[0].path}`;
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Sign Up",
+        path: "/auth/signup",
+        isLoggedIn: false,
+        errorMessage: message,
+        email: email,
+        password: password,
+        name: name,
+        confirmPassword: confirmPassword,
       });
-    })
-    .catch((err) => {
-      throw new ServerDown("Can not save Product to database");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = new User({
+      name: name,
+      email: email,
+      password: hashedPassword,
+      cart: { items: [] },
     });
+    await user.save();
+
+    res.redirect("/login");
+    return transporter.sendMail({
+      from: "hoantran03082003@gmail.com",
+      to: email,
+      subject: "Signup succeeded!",
+      html: "<h1>You successfully signed up!</h1>",
+    });
+  } catch (error) {
+    throw new ServerDown("Can not save Product to database");
+  }
 };
 
 exports.getForgotPassword = (req, res) => {
@@ -178,39 +185,41 @@ exports.getForgotPassword = (req, res) => {
 };
 
 exports.postForgotPassword = (req, res) => {
-  crypto.randomBytes(32, (error, buffer) => {
-    if (error) {
-      return res.redirect("/forgot-password");
-    }
-    const token = buffer.toString("hex");
-    const tokenExpired = Date.now() + 3600000;
+  try {
+    crypto.randomBytes(32, async (error, buffer) => {
+      if (error) {
+        return res.redirect("/forgot-password");
+      }
+      const token = buffer.toString("hex");
+      const tokenExpired = Date.now() + 3600000;
 
-    User.findOne({ email: req.body.email })
-      .then((user) => {
-        if (!user) {
-          req.flash("error", "No account with that Email !");
-          return res.redirect("/forgot-password");
-        }
-        user.resetToken = token;
-        user.resetExpiredTime = tokenExpired;
-        return user.save().then((result) => {
-          // send mail
-          return transporter.sendMail({
-            from: "hoantran03082003@gmail.com",
-            to: req.body.email,
-            subject: "Reset password",
-            html: `<p>You request to reset password</p>
-            <p>please click to link below to reset your password</p>
-            <a href="http://localhost:3000/reset/${token}">http://localhost:3000/reset/${token}<a/>
-            `,
-          });
-        });
-      })
-      .then((result) => {})
-      .catch((err) => {
-        throw new ServerDown("Can not save Product to database");
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        req.flash("error", "No account with that Email !");
+        return res.redirect("/forgot-password");
+      }
+      user.resetToken = token;
+      user.resetExpiredTime = tokenExpired;
+      await user.save();
+      // send mail
+      transporter.sendMail({
+        from: "hoantran03082003@gmail.com",
+        to: req.body.email,
+        subject: "Reset password",
+        html: `<p>You request to reset password</p>
+              <p>please click to link below to reset your password</p>
+              <a href="http://localhost:3000/reset/${token}">http://localhost:3000/reset/${token}<a/>
+              `,
       });
-  });
+      res.render("notice", {
+        path: "/reset",
+        pageTitle: "Reset Password",
+        isLoggedIn: false,
+      });
+    });
+  } catch (error) {
+    throw new ServerDown("Can not save Product to database");
+  }
 };
 
 exports.getReset = (req, res) => {
@@ -229,33 +238,30 @@ exports.getReset = (req, res) => {
   });
 };
 
-exports.postReset = (req, res) => {
-  const resetToken = req.body.resetToken;
-  const newPassword = req.body.newPassword;
-  const confirmPassword = req.body.confirmPassword;
-  let userOld;
-  if (newPassword !== confirmPassword) {
-    req.flash("error", "Password Confirm is not correct ! ");
-    return res.redirect(`/reset/${resetToken}`);
+exports.postReset = async (req, res) => {
+  try {
+    const resetToken = req.body.resetToken;
+    const newPassword = req.body.newPassword;
+    const confirmPassword = req.body.confirmPassword;
+
+    let userOld;
+
+    if (newPassword !== confirmPassword) {
+      req.flash("error", "Password Confirm is not correct ! ");
+      return res.redirect(`/reset/${resetToken}`);
+    }
+
+    const user = await User.findOne({ resetToken: resetToken });
+    if (user.resetExpiredTime <= Date.now()) {
+      req.flash("error", "Reset Token Was Expired ! ");
+      return res.redirect("/login");
+    }
+    userOld = user;
+    const hashPass = await bcrypt.hash(req.body.newPassword, 12);
+    userOld.password = hashPass;
+    await userOld.save();
+    res.redirect("/login");
+  } catch (error) {
+    throw new ServerDown("Can not save Product to database");
   }
-  User.findOne({ resetToken: resetToken })
-    .then((user) => {
-      if (user.resetExpiredTime <= Date.now()) {
-        req.flash("error", "Reset Token Was Expired ! ");
-        return res.redirect("/login");
-      }
-      userOld = user;
-      bcrypt
-        .hash(req.body.newPassword, 12)
-        .then((hashPass) => {
-          userOld.password = hashPass;
-          return userOld.save();
-        })
-        .then((result) => {
-          res.redirect("/login");
-        });
-    })
-    .catch((err) => {
-      throw new ServerDown("Can not save Product to database");
-    });
 };

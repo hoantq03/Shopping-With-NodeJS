@@ -32,7 +32,6 @@ exports.postAddProduct = (req, res, next) => {
 
   // exist errors
   if (!errorValidation.isEmpty()) {
-    console.log(errorValidation.array());
     throw new ValidationError(errorValidation.array());
   }
 

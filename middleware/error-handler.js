@@ -1,4 +1,7 @@
 const errorHandler = (err, req, res, next) => {
+  console.log(
+    "----------------------------------ERRORS LOG------------------------------------------"
+  );
   console.log("ERROR LOG ", new Date().toLocaleString());
   console.log("Request:", req.method, req.originalUrl);
   console.log("Params:", req.params);
@@ -17,8 +20,9 @@ const errorHandler = (err, req, res, next) => {
     error: messageError,
   };
   const status = err.status || 400;
+
+  // check status
   if (status === 400) {
-    console.log(error);
     return res.status(status).render("404", {
       pageTitle: "Page not found",
       isLoggedIn: req.session.isLoggedIn,
@@ -26,7 +30,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
   if (status === 404) {
-    console.log(error);
     return res.status(status).render("404", {
       pageTitle: "Page Not Found",
       isLoggedIn: req.session.isLoggedIn,
@@ -34,7 +37,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
   if (status === 422) {
-    console.log(error);
     //if exist any error, rerender add product form with red highlight input
     return res.status(422).render("admin/edit-product", {
       path: "/admin/add-product",
@@ -57,8 +59,8 @@ const errorHandler = (err, req, res, next) => {
       errorMessage: "validation errors",
     });
   }
+
   if (status === 500) {
-    console.log(error);
     return res.status(status).render("500", {
       pageTitle: "Server is down",
       isLoggedIn: req.session.isLoggedIn,
