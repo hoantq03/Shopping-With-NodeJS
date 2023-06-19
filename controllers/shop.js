@@ -80,7 +80,7 @@ exports.getCart = async (req, res, next) => {
 };
 
 //send data to cart
-exports.postCart = async (req, res, next) => {
+exports.postCart = async (req, res) => {
   try {
     // get product ID from hidden form in EJS
     const prodId = req.body.productId;
@@ -134,10 +134,12 @@ exports.postOrder = async (req, res, next) => {
         userId: req.session.user._id,
       },
       products: products,
+      date: Date(),
     });
+
     await order.save();
 
-    await req.session.user.clearCart();
+    await req.session.user.clearCart(req.session.user);
     res.redirect("/orders");
   } catch (error) {
     throw new ServerDown("Can not save Product to database");
