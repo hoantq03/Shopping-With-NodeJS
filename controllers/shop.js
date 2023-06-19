@@ -4,6 +4,8 @@ const User = require("../models/user");
 const ServerDown = require("../errors/ServerDown");
 const NotFoundError = require("../errors/notFoundError");
 require("express-async-errors");
+const fs = require("fs");
+const path = require("path");
 
 //get all products
 exports.getProducts = (req, res, next) => {
@@ -144,7 +146,11 @@ exports.postOrder = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
-    const orders = await Order.find().populate("products.product.productId");
+    console.log(req.user._id);
+    const orders = await Order.find({
+      "user.userId": req.user._id,
+    }).populate("products.product.productId");
+    console.log(orders);
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
@@ -153,5 +159,31 @@ exports.getOrders = async (req, res, next) => {
     });
   } catch (error) {
     throw new ServerDown("Can not save Product to database");
+  }
+};
+
+exports.getInvoice = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const invoiceName = "invoice-" + orderId + ".pdf";
+    const invoicePath = path.join("data", "invoices", invoiceName);
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new NotFoundError("Can not fount this order invoice");
+    }
+    console.log(order.user.userId.toString());
+    console.log(req.user._id.toString());
+    if (order.user.userId.toString() !== req.user._id.toString()) {
+      throw new ServerDown("unauthorized");
+    }
+    await fs.readFile(invoicePath, (error, data) => {
+      if (error) {
+        throw new ServerDown("can not read file");
+      }
+      res.setHeader("Content-Type", "application/pdf");
+      res.send(data);
+    });
+  } catch (error) {
+    throw new ServerDown("can not get order invoice");
   }
 };
