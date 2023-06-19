@@ -24,9 +24,8 @@ exports.getProducts = (req, res, next) => {
 
 //get one product
 exports.getProduct = async (req, res, next) => {
-  const value = req.session.isLoggedIn;
-
   try {
+    const value = req.session.isLoggedIn;
     const prodId = req.params.productId;
     const product = await Product.findById(prodId);
     res.render("shop/product-detail", {
@@ -34,6 +33,7 @@ exports.getProduct = async (req, res, next) => {
       pageTitle: product.title,
       path: "/products",
       isLoggedIn: value,
+      errors: [],
     });
   } catch (error) {
     throw new NotFoundError("user can not be found ");
