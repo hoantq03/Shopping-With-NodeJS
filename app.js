@@ -9,6 +9,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash");
 const errorHandler = require("./middleware/error-handler");
 const multer = require("multer");
+
 //require user mongoose
 const MONGODB_URI =
   "mongodb+srv://thaihoang03082003:123@cluster0.e45cmto.mongodb.net/shopnodejs";
@@ -25,12 +26,17 @@ const store = new MongoDBStore({
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-//my app have two routes
+//my app have three routes
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
+
+// not found page ( 404 )
 const NotFoundError = require("./errors/notFoundError");
 
+// config storage the image have two part
+// firstly is destination : ( here we store in images)
+// the two is file name .
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");
@@ -45,6 +51,8 @@ const fileStorage = multer.diskStorage({
   },
 });
 
+// file filter whether file is images
+//
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === "image/png" ||
@@ -54,11 +62,16 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   else cb(null, false);
 };
-// parser body
+
+// parser body of request
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// set name of file and filter whether this file is images, upload file through "req.file"
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
+
+// public some folder
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 
@@ -93,13 +106,15 @@ app.use((req, res, next) => {
     });
 });
 
-//use this two routes
-app.use("/admin", adminRoutes);
+//use this three routes
 app.use(shopRoutes);
+app.use("/admin", adminRoutes);
 app.use(authRoutes);
 
+// error handler middleware
 app.use(errorHandler);
 
+// connect to the database and run the server at port  3000
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {

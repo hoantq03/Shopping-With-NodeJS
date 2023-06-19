@@ -119,7 +119,6 @@ exports.postSignUp = async (req, res) => {
     const password = req.body.password;
     const errorValidation = validationResult(req);
     const confirmPassword = req.body.confirmPassword;
-    console.log(errorValidation);
     if (password !== confirmPassword) {
       return res.status(422).render("auth/signup", {
         pageTitle: "Sign Up",

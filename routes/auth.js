@@ -5,8 +5,8 @@ const { check, body } = require("express-validator");
 const User = require("../models/user");
 require("express-async-errors");
 
+// get/post login page
 router.get("/login", authController.getLogin);
-
 router.post(
   "/login",
   body("email")
@@ -27,10 +27,13 @@ router.post(
   authController.postLogin
 );
 
+// post data logout
 router.post("/logout", authController.postLogout);
 
+// get signup page
 router.get("/signup", authController.getSignUp);
 
+// post sign up data
 router.post(
   "/signup",
   [
@@ -61,12 +64,14 @@ router.post(
   authController.postSignUp
 );
 
+// get/post forgot password
 router.get("/forgot-password", authController.getForgotPassword);
-
 router.post("/forgot-password", authController.postForgotPassword);
 
+//reset password
 router.get("/reset/:resetPasswordToken", authController.getReset);
 
+// change password
 router.post("/changePassword", authController.postReset);
 
 module.exports = router;

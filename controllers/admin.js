@@ -33,6 +33,8 @@ exports.postAddProduct = async (req, res, next) => {
     if (!errorValidation.isEmpty()) {
       throw new ValidationError(errorValidation.array());
     }
+
+    // if user don't attached the images file, render add-product page with message error
     if (!imageUrl) {
       const product = {
         title: title,
@@ -52,7 +54,6 @@ exports.postAddProduct = async (req, res, next) => {
       });
     } else {
       //// whether don't have any error, create new product with userId is current user login
-      console.log(imageUrl);
       const product = new Product({
         title: title,
         price: price,
@@ -77,7 +78,6 @@ exports.getEditProduct = async (req, res, next) => {
     const value = req.session.isLoggedIn;
     const editMode = req.query.edit;
     const imageUrl = req.body;
-    console.log(imageUrl);
     if (!editMode) {
       return res.redirect("/");
     }
@@ -117,9 +117,7 @@ exports.postEditProduct = async (req, res, next) => {
 
     const prodId = req.body.productId;
     let updatedImageUrl;
-    console.log(req.file);
     if (!req.file) {
-      console.log("working");
       updatedImageUrl = req.file.path;
     }
     const errors = validationResult(req);

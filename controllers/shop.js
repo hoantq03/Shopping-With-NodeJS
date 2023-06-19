@@ -8,21 +8,21 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 const product = require("../models/product");
+
 //get all products
-exports.getProducts = (req, res, next) => {
+exports.getProducts = async (req, res, next) => {
   const value = req.session.isLoggedIn;
-  Product.find()
-    .then((products) => {
-      res.render("shop/product-list", {
-        prods: products,
-        pageTitle: "All Products",
-        path: "/products",
-        isLoggedIn: value,
-      });
-    })
-    .catch((err) => {
-      throw new ServerDown("Can not save Product to database");
+  try {
+    const products = await Product.find();
+    res.render("shop/product-list", {
+      prods: products,
+      pageTitle: "All Products",
+      path: "/products",
+      isLoggedIn: value,
     });
+  } catch (error) {
+    throw new ServerDown("Can not save Product to database");
+  }
 };
 
 //get one product
@@ -63,8 +63,8 @@ exports.getIndex = async (req, res, next) => {
 exports.getCart = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
-
     req.session.user = new User().init(req.session.user);
+
     //reference to product info by ID
     const user = await req.session.user.populate("cart.items.productId");
     const products = user.cart.items;
@@ -85,6 +85,7 @@ exports.postCart = async (req, res, next) => {
     // get product ID from hidden form in EJS
     const prodId = req.body.productId;
     req.session.user = new User().init(req.session.user);
+
     const product = await Product.findById(prodId);
     // add this product you just have found before to cart of current user
     await req.session.user.addToCart(product);
@@ -97,7 +98,7 @@ exports.postCart = async (req, res, next) => {
 // delete product in cart
 exports.postCartDeleteProduct = async (req, res, next) => {
   try {
-    // get id from EJS
+    // get id from EJS hidden input
     const prodId = req.body.productId;
     req.session.user = new User().init(req.session.user);
     await req.session.user.removeFromCart(prodId);
@@ -122,10 +123,10 @@ exports.postOrder = async (req, res, next) => {
     // ... all data of product
     //  }
     //}
+
     const products = user.cart.items.map((item) => {
       return { quantity: item.quantity, product: { ...item.productId._doc } };
     });
-
     //create new order document
     const order = new Order({
       user: {
@@ -147,6 +148,7 @@ exports.postOrder = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
+    // only find orders log of current user login
     const orders = await Order.find({
       "user.userId": req.user._id,
     }).populate("products.product.productId");
@@ -180,8 +182,6 @@ exports.getInvoice = async (req, res) => {
     );
     pdfDoc.pipe(fs.createWriteStream(invoicePath));
     pdfDoc.pipe(res);
-
-    console.log(orders[0]);
 
     orders.forEach((order) => {
       pdfDoc.text(`INVOICE ORDERS ( ID : ${order._id} ) `);

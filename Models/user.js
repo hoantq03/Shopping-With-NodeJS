@@ -36,9 +36,7 @@ const userSchema = new Schema({
 
 userSchema.methods.addToCart = function (product) {
   // because this.cart.items is array, so we can use array's methods
-  console.log(this.cart.items);
   const cartProductIndex = this.cart.items.findIndex((productInCart) => {
-    console.log(productInCart.productId);
     return productInCart.productId.toString() === product._id.toString();
   });
   //copy current cart
@@ -62,8 +60,6 @@ userSchema.methods.addToCart = function (product) {
   };
   // update to database
   this.cart = updatedCart;
-  console.log("cart updated here");
-  console.log(updatedCart);
   return this.save();
 };
 

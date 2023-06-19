@@ -5,12 +5,11 @@ const isAuth = require("../middleware/is-auth");
 const { body } = require("express-validator");
 require("express-async-errors");
 
-// /admin/add-product => GET
-router.get("/add-product", isAuth, adminController.getAddProduct);
-
 // // /admin/products => GET
 router.get("/products", isAuth, adminController.getProducts);
 
+// /admin/add-product => GET
+router.get("/add-product", isAuth, adminController.getAddProduct);
 // /admin/add-product => POST
 router.post(
   "/add-product",
@@ -23,8 +22,11 @@ router.post(
   adminController.postAddProduct
 );
 
-router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
+// edit products
 
+// get edit form
+router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
+//post edit data
 router.post(
   "/edit-product",
   [
@@ -35,6 +37,7 @@ router.post(
   adminController.postEditProduct
 );
 
+// delete products
 router.post("/delete-product", adminController.postDeleteProduct);
 
 module.exports = router;
