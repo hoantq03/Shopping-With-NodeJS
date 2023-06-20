@@ -4,6 +4,7 @@ const { validationResult } = require("express-validator");
 const ValidationError = require("../errors/ValidateError");
 const ServerDown = require("../errors/ServerDown");
 require("express-async-errors");
+const fileHelper = require("../util/file");
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
@@ -117,9 +118,14 @@ exports.postEditProduct = async (req, res, next) => {
 
     const prodId = req.body.productId;
     let updatedImageUrl;
-    if (!req.file) {
+
+    const product = await Product.findById(prodId);
+
+    if (req.file) {
+      fileHelper.deleteFile(product.imageUrl);
       updatedImageUrl = req.file.path;
     }
+
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -146,7 +152,7 @@ exports.postEditProduct = async (req, res, next) => {
     }
 
     // find product and update
-    const product = await Product.findById(prodId);
+
     if (product.userId.toString() !== req.session.user._id.toString()) {
       return res.redirect("/admin/products");
     }
@@ -156,6 +162,7 @@ exports.postEditProduct = async (req, res, next) => {
     product.imageUrl = updatedImageUrl ? updatedImageUrl : product.imageUrl;
 
     await product.save();
+
     res.redirect("/admin/products");
   } catch (error) {
     throw new ServerDown("Can not save Product to database");
