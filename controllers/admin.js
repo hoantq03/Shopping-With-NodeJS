@@ -181,7 +181,6 @@ exports.getProducts = async (req, res, next) => {
       .skip((page - 1) * ITEMS_PER_PAGE)
       .limit(ITEMS_PER_PAGE);
 
-    console.log(products);
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
@@ -200,12 +199,12 @@ exports.getProducts = async (req, res, next) => {
 };
 
 //delete product in database
-exports.postDeleteProduct = async (req, res, next) => {
+exports.deleteProduct = async (req, res, next) => {
   try {
-    const prodId = req.body.productId;
+    const prodId = req.params.productId;
     await Product.deleteOne({ _id: prodId, userId: req.session.user._id });
-    res.redirect("/admin/products");
+    res.status(200).json({ message: "success !" });
   } catch (error) {
-    throw new ServerDown("Can not save Product to database");
+    res.status(200).json({ message: "Deleting product failed." });
   }
 };
