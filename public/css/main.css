@@ -247,3 +247,26 @@ a:hover {
 .error {
   border: 2px red solid;
 }
+
+.pagination {
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  font-size: 24px;
+  margin: 20px 10px;
+  border: #00695c 2px solid;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.pagination a:hover,
+.pagination a:active {
+  background-color: #00695c;
+}
+
+.pagination a.active {
+  background-color: #00695c;
+  color: #fff;
+}

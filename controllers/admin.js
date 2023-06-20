@@ -1,10 +1,10 @@
-const { mongoose } = require("mongoose");
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
 const ValidationError = require("../errors/ValidateError");
 const ServerDown = require("../errors/ServerDown");
 require("express-async-errors");
 const fileHelper = require("../util/file");
+const ITEMS_PER_PAGE = 10;
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
@@ -173,13 +173,26 @@ exports.postEditProduct = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
-    const products = await Product.find({ userId: req.session.user._id });
+    const page = req.query.page;
+
+    const numProducts = await Product.find().count();
+
+    const products = await Product.find({ userId: req.session.user._id })
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
+
+    console.log(products);
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
       path: "/admin/products",
       isLoggedIn: value,
       errorMessage: null,
+      totalProducts: numProducts,
+      hasNext: page * ITEMS_PER_PAGE < numProducts,
+      hasPrevious: page > 1,
+      curPage: page,
+      lastPage: Math.ceil(numProducts / ITEMS_PER_PAGE),
     });
   } catch (error) {
     throw new ServerDown("Can not save Product to database");

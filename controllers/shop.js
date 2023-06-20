@@ -7,18 +7,29 @@ require("express-async-errors");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
-const product = require("../models/product");
+const ITEMS_PER_PAGE = 10;
 
 //get all products
 exports.getProducts = async (req, res, next) => {
   const value = req.session.isLoggedIn;
   try {
-    const products = await Product.find();
+    const page = req.query.page;
+
+    const numProducts = await Product.find().count();
+
+    const products = await Product.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
     res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
       isLoggedIn: value,
+      totalProducts: numProducts,
+      hasNext: page * ITEMS_PER_PAGE < numProducts,
+      hasPrevious: page > 1,
+      curPage: page,
+      lastPage: Math.ceil(numProducts / ITEMS_PER_PAGE),
     });
   } catch (error) {
     throw new ServerDown("Can not save Product to database");
@@ -47,12 +58,23 @@ exports.getProduct = async (req, res, next) => {
 exports.getIndex = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
-    const products = await Product.find();
+    const page = req.query.page;
+
+    const numProducts = await Product.find().count();
+
+    const products = await Product.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE);
     res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
       path: "/",
       isLoggedIn: value,
+      totalProducts: numProducts,
+      hasNext: page * ITEMS_PER_PAGE < numProducts,
+      hasPrevious: page > 1,
+      curPage: page,
+      lastPage: Math.ceil(numProducts / ITEMS_PER_PAGE),
     });
   } catch (error) {
     throw new ServerDown("Can not save Product to database");
