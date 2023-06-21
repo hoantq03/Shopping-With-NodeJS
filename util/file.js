@@ -1,9 +1,9 @@
 const fs = require("fs");
 const ServerDown = require("../errors/ServerDown");
 
-const deleteFile = (filePath) => {
+const deleteFile = async (filePath) => {
   try {
-    fs.unlink(filePath, (err) => {
+    await fs.unlink(filePath, (err) => {
       if (err) throw new ServerDown("can not delete file");
     });
   } catch (error) {
