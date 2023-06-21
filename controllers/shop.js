@@ -11,7 +11,7 @@ const ITEMS_PER_PAGE = 10;
 
 //get all products
 exports.getProducts = async (req, res, next) => {
-  const value = req.session.isLoggedIn;
+  const value = req.session.isLoggedIn || false;
   try {
     const page = req.query.page;
 
@@ -39,7 +39,7 @@ exports.getProducts = async (req, res, next) => {
 //get one product
 exports.getProduct = async (req, res, next) => {
   try {
-    const value = req.session.isLoggedIn;
+    const value = req.session.isLoggedIn || false;
     const prodId = req.params.productId;
     const product = await Product.findById(prodId);
     res.render("shop/product-detail", {
@@ -57,7 +57,7 @@ exports.getProduct = async (req, res, next) => {
 // get all products at home pages
 exports.getIndex = async (req, res, next) => {
   try {
-    const value = req.session.isLoggedIn;
+    const value = req.session.isLoggedIn || false;
     const page = req.query.page;
 
     const numProducts = await Product.find().count();
@@ -84,7 +84,7 @@ exports.getIndex = async (req, res, next) => {
 //get cart products view
 exports.getCart = async (req, res, next) => {
   try {
-    const value = req.session.isLoggedIn;
+    const value = req.session.isLoggedIn || false;
     req.session.user = new User().init(req.session.user);
 
     //reference to product info by ID
@@ -171,7 +171,7 @@ exports.postOrder = async (req, res, next) => {
 // get view of orders information
 exports.getOrders = async (req, res, next) => {
   try {
-    const value = req.session.isLoggedIn;
+    const value = req.session.isLoggedIn || false;
     // only find orders log of current user login
     const orders = await Order.find({
       "user.userId": req.user._id,

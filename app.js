@@ -42,7 +42,10 @@ const fileStorage = multer.diskStorage({
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(
+      null,
+      new Date().toISOString().replaceAll(":", "-") + "-" + file.originalname
+    );
   },
 });
 
@@ -59,7 +62,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // parser body of request
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // set name of file and filter whether this file is images, upload file through "req.file"
 app.use(

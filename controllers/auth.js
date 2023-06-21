@@ -37,7 +37,6 @@ exports.getLogin = (req, res) => {
 exports.postLogin = async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  console.log(email, password);
   // all errors in Routes folder
   const errorValidation = validationResult(req);
 

@@ -1,4 +1,5 @@
 const errorHandler = (err, req, res, next) => {
+  console.log(req.session.isLoggedIn);
   console.log(
     "----------------------------------ERRORS LOG------------------------------------------"
   );
@@ -32,7 +33,7 @@ const errorHandler = (err, req, res, next) => {
   if (status === 404) {
     return res.status(status).render("404", {
       pageTitle: "Page Not Found",
-      isLoggedIn: req.session.isLoggedIn,
+      isLoggedIn: req.session.isLoggedIn || false,
       path: "/404",
     });
   }
@@ -63,7 +64,7 @@ const errorHandler = (err, req, res, next) => {
   if (status === 500) {
     return res.status(status).render("500", {
       pageTitle: "Server is down",
-      isLoggedIn: req.session.isLoggedIn,
+      isLoggedIn: req.session.isLoggedIn || false,
       path: "/500",
     });
   }

@@ -8,12 +8,11 @@ const ITEMS_PER_PAGE = 10;
 
 // get add product form
 exports.getAddProduct = (req, res, next) => {
-  const value = req.session.isLoggedIn;
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
-    isLoggedIn: value,
+    isLoggedIn: req.session.isLoggedIn,
     hasError: false,
     errorMessage: null,
     errors: [],
@@ -76,7 +75,7 @@ exports.postAddProduct = async (req, res, next) => {
 exports.getEditProduct = async (req, res, next) => {
   try {
     //check edit mode is true by params of url
-    const value = req.session.isLoggedIn;
+    const value = req.session.isLoggedIn || false;
     const editMode = req.query.edit;
     const imageUrl = req.body;
     if (!editMode) {
@@ -174,7 +173,6 @@ exports.getProducts = async (req, res, next) => {
   try {
     const value = req.session.isLoggedIn;
     const page = req.query.page;
-
     const numProducts = await Product.find().count();
 
     const products = await Product.find({ userId: req.session.user._id })
