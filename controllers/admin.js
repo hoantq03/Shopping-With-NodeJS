@@ -202,6 +202,8 @@ exports.getProducts = async (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
   try {
     const prodId = req.params.productId;
+    const imageUrl = await Product.find({ _id: prodId });
+    fileHelper.deleteFile(imageUrl);
     await Product.deleteOne({ _id: prodId, userId: req.session.user._id });
     res.status(200).json({ message: "success !" });
   } catch (error) {

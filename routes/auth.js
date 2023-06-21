@@ -12,6 +12,7 @@ router.post(
   body("email")
     .isEmail()
     .custom((value, { req }) => {
+      console.log("value email" + value);
       return User.findOne({ email: value }).then((userDoc) => {
         if (!userDoc) {
           return Promise.reject("E-mail incorrect");
