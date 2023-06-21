@@ -255,29 +255,3 @@ exports.getInvoice = async (req, res) => {
     throw new ServerDown("can not get order invoice");
   }
 };
-
-// exports.getCheckout = async (req, res) => {
-//   try {
-//     const value = req.session.isLoggedIn;
-//     req.session.user = new User().init(req.session.user);
-
-//     //reference to product info by ID
-//     const user = await req.session.user.populate("cart.items.productId");
-//     const products = user.cart.items;
-//     let totalPrice = 0;
-//     products.forEach((product) => {
-//       totalPrice = totalPrice + product.productId.price * product.quantity;
-//     });
-
-//     console.log(totalPrice);
-//     res.render("shop/checkout", {
-//       path: "/checkout",
-//       pageTitle: "Checkout",
-//       products: products,
-//       isLoggedIn: value,
-//       totalPrice: totalPrice,
-//     });
-//   } catch (error) {
-//     throw new ServerDown("Can not get in cart Product to database");
-//   }
-// };
